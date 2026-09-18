@@ -1,0 +1,15 @@
+{
+  "features": [
+    "N",
+    "P",
+    "K",
+    "temperature",
+    "humidity",
+    "ph",
+    "rainfall"
+  ],
+  "n_classes": 22,
+  "model_type": "XGBClassifier",
+  "xgb_version": "3.2.0",
+  "shap_layout": "new"
+}
