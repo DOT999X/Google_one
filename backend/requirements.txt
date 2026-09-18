@@ -1,29 +1,31 @@
 # Core
-fastapi==0.115.0
-uvicorn[standard]==0.30.0
-python-multipart==0.0.9
+fastapi
+uvicorn[standard]
+python-multipart
 
 # ML
-torch==2.4.0
-torchvision==0.19.0
-xgboost==3.2.0
-shap==0.51.0
-scikit-learn==1.5.1
-joblib==1.4.2
-numpy==1.26.4
-Pillow==10.4.0
+torch
+torchvision
+xgboost
+shap
+scikit-learn
+joblib
+numpy
+Pillow
 
-# HTTP client (for SoilGrids + Open-Meteo)
-httpx==0.27.0
+# HTTP client
+httpx
 
 # Google Cloud
-google-cloud-firestore==2.19.0
-google-cloud-bigquery==3.25.0
-google-cloud-storage==2.18.0
-google-generativeai==0.8.0
+google-cloud-firestore
+google-cloud-bigquery
+google-cloud-storage
+google-generativeai
 
-# Google Earth Engine (optional — for real Sentinel-2 NDVI)
-earthengine-api==1.2.0
+# Google Earth Engine (optional)
+earthengine-api
 
 # Pydantic
-pydantic==2.9.0
+pydantic
+
+python-dotenv

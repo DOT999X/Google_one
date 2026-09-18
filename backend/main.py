@@ -37,6 +37,8 @@ import httpx
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from dotenv import load_dotenv
+load_dotenv()
 
 # Google Cloud imports — graceful fallback for local dev
 try:
@@ -60,7 +62,7 @@ MODEL_DIR = os.environ.get("MODEL_DIR", "models")
 GCP_PROJECT = os.environ.get("GCP_PROJECT", "")
 GCS_BUCKET = os.environ.get("GCS_BUCKET", "agrin-images")
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
-GEMINI_MODEL = "gemini-2.0-flash"
+GEMINI_MODEL = "gemini-3.6-flash"
 GEE_SERVICE_ACCOUNT = os.environ.get("GEE_SERVICE_ACCOUNT", "")
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
