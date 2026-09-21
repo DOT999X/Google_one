@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16a34a">
+<title>AgriN — Smart Farming Advisory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green-50: #f0fdf4; --green-100: #dcfce7; --green-200: #bbf7d0;
+  --green-500: #22c55e; --green-600: #16a34a; --green-700: #15803d; --green-800: #166534;
+  --amber-50: #fffbeb; --amber-100: #fef3c7; --amber-500: #f59e0b; --amber-600: #d97706;
+  --red-50: #fef2f2; --red-500: #ef4444;
+  --blue-50: #eff6ff; --blue-500: #3b82f6; --blue-600: #2563eb;
+  --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db;
+  --gray-400: #9ca3af; --gray-500: #6b7280; --gray-600: #4b5563; --gray-700: #374151;
+  --gray-800: #1f2937; --gray-900: #111827;
+  --radius: 12px; --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --green-50: #052e16; --green-100: #14532d; --green-200: #166534;
+    --green-500: #22c55e; --green-600: #16a34a; --green-700: #15803d; --green-800: #dcfce7;
+    --amber-50: #451a03; --amber-100: #78350f; --amber-500: #f59e0b; --amber-600: #fbbf24;
+    --red-50: #450a0a; --red-500: #f87171;
+    --blue-50: #1e3a5f; --blue-500: #60a5fa; --blue-600: #93bbfd;
+    --gray-50: #111827; --gray-100: #1f2937; --gray-200: #374151; --gray-300: #4b5563;
+    --gray-400: #6b7280; --gray-500: #9ca3af; --gray-600: #d1d5db; --gray-700: #e5e7eb;
+    --gray-800: #f3f4f6; --gray-900: #f9fafb;
+    --shadow: 0 1px 3px rgba(0,0,0,0.3); --shadow-md: 0 4px 6px rgba(0,0,0,0.3);
+  }
+}
+:root[data-theme="dark"] {
+  --green-50: #052e16; --green-100: #14532d; --green-200: #166534;
+  --green-500: #22c55e; --green-600: #16a34a; --green-700: #15803d; --green-800: #dcfce7;
+  --amber-50: #451a03; --amber-100: #78350f; --amber-500: #f59e0b; --amber-600: #fbbf24;
+  --red-50: #450a0a; --red-500: #f87171;
+  --blue-50: #1e3a5f; --blue-500: #60a5fa; --blue-600: #93bbfd;
+  --gray-50: #111827; --gray-100: #1f2937; --gray-200: #374151; --gray-300: #4b5563;
+  --gray-400: #6b7280; --gray-500: #9ca3af; --gray-600: #d1d5db; --gray-700: #e5e7eb;
+  --gray-800: #f3f4f6; --gray-900: #f9fafb;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3); --shadow-md: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--gray-50); color: var(--gray-800);
+  line-height: 1.6; -webkit-font-smoothing: antialiased;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, var(--green-700), var(--green-600));
+  color: white; padding: 20px 16px 16px; position: sticky; top: 0; z-index: 100;
+}
+.header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+.header p { font-size: 13px; opacity: 0.85; margin-top: 2px; }
+
+/* Tab bar */
+.tabs {
+  display: flex; background: var(--gray-100); border-radius: var(--radius);
+  padding: 4px; margin: 16px 16px 0; gap: 4px;
+}
+.tab {
+  flex: 1; padding: 10px 8px; border: none; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+  background: transparent; color: var(--gray-500); font-family: inherit;
+}
+.tab.active { background: white; color: var(--green-700); box-shadow: var(--shadow); }
+
+/* Main content */
+.content { padding: 16px; max-width: 600px; margin: 0 auto; }
+
+/* Cards */
+.card {
+  background: white; border-radius: var(--radius); padding: 20px;
+  box-shadow: var(--shadow); margin-bottom: 16px;
+}
+@media (prefers-color-scheme: dark) {
+  .card { background: var(--gray-100); }
+  .tab.active { background: var(--gray-200); }
+}
+
+.card-title { font-size: 15px; font-weight: 600; color: var(--gray-800); margin-bottom: 12px; }
+
+/* Form elements */
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 13px; font-weight: 500; color: var(--gray-600); margin-bottom: 5px; }
+.field input, .field select {
+  width: 100%; padding: 10px 12px; border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm); font-size: 15px; font-family: inherit;
+  background: var(--gray-50); color: var(--gray-800); transition: border-color 0.2s;
+}
+.field input:focus, .field select:focus { outline: none; border-color: var(--green-500); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* Buttons */
+.btn {
+  width: 100%; padding: 13px; border: none; border-radius: var(--radius-sm);
+  font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
+  transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-primary { background: var(--green-600); color: white; }
+.btn-primary:hover { background: var(--green-700); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-secondary { background: var(--gray-100); color: var(--gray-700); }
+
+/* Upload area */
+.upload-area {
+  border: 2px dashed var(--gray-300); border-radius: var(--radius);
+  padding: 32px 16px; text-align: center; cursor: pointer;
+  transition: all 0.2s; position: relative; overflow: hidden;
+}
+.upload-area:hover { border-color: var(--green-500); background: var(--green-50); }
+.upload-area.has-image { border-style: solid; border-color: var(--green-500); padding: 8px; }
+.upload-area img { max-width: 100%; max-height: 200px; border-radius: var(--radius-sm); }
+.upload-area input { display: none; }
+.upload-icon { font-size: 36px; margin-bottom: 8px; }
+.upload-text { font-size: 14px; color: var(--gray-500); }
+
+/* Loader */
+.loader {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 40px 20px; gap: 16px;
+}
+.spinner {
+  width: 40px; height: 40px; border: 3px solid var(--gray-200);
+  border-top-color: var(--green-600); border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loader-text { font-size: 14px; color: var(--gray-500); text-align: center; }
+
+/* Results */
+.summary-card {
+  background: var(--green-50); border-radius: var(--radius); padding: 16px;
+  margin-bottom: 16px; border-left: 4px solid var(--green-600);
+}
+.summary-title { font-size: 18px; font-weight: 700; color: var(--green-800); }
+.summary-subtitle { font-size: 13px; color: var(--gray-500); margin-top: 2px; }
+.summary-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;
+}
+.badge-green { background: var(--green-100); color: var(--green-700); }
+.badge-amber { background: var(--amber-100); color: var(--amber-600); }
+.badge-blue { background: var(--blue-50); color: var(--blue-600); }
+
+/* Advisory sections */
+.advisory { margin-top: 16px; }
+.advisory-section {
+  background: white; border-radius: var(--radius); padding: 16px;
+  margin-bottom: 12px; box-shadow: var(--shadow);
+}
+@media (prefers-color-scheme: dark) { .advisory-section { background: var(--gray-100); } }
+.advisory-section h3 {
+  font-size: 14px; font-weight: 600; color: var(--green-700);
+  margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+}
+.advisory-section p, .advisory-section li {
+  font-size: 14px; color: var(--gray-700); line-height: 1.7;
+}
+.advisory-section ul, .advisory-section ol {
+  padding-left: 18px; margin-top: 6px;
+}
+.advisory-section li { margin-bottom: 4px; }
+.advisory-section strong { color: var(--gray-800); }
+
+/* Data source pills */
+.data-sources {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--gray-200);
+}
+.source-pill {
+  font-size: 11px; padding: 3px 8px; border-radius: 12px;
+  background: var(--gray-100); color: var(--gray-500);
+}
+
+/* Confidence indicator */
+.confidence-bar { margin-top: 12px; }
+.confidence-label { font-size: 12px; color: var(--gray-500); margin-bottom: 4px; }
+.confidence-track { height: 6px; background: var(--gray-200); border-radius: 3px; overflow: hidden; }
+.confidence-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+.confidence-high { background: var(--green-500); }
+.confidence-moderate { background: var(--amber-500); }
+.confidence-low { background: var(--red-500); }
+
+/* Predictions table */
+.predictions { margin-top: 16px; }
+.pred-card {
+  display: flex; align-items: center; gap: 12px; padding: 12px;
+  background: white; border-radius: var(--radius-sm); margin-bottom: 8px;
+  box-shadow: var(--shadow);
+}
+@media (prefers-color-scheme: dark) { .pred-card { background: var(--gray-100); } }
+.pred-rank {
+  width: 28px; height: 28px; border-radius: 50%; display: flex;
+  align-items: center; justify-content: center; font-size: 13px;
+  font-weight: 700; flex-shrink: 0;
+}
+.pred-rank-1 { background: var(--green-100); color: var(--green-700); }
+.pred-rank-2 { background: var(--amber-100); color: var(--amber-600); }
+.pred-rank-3 { background: var(--gray-200); color: var(--gray-600); }
+.pred-name { font-size: 15px; font-weight: 600; color: var(--gray-800); text-transform: capitalize; }
+.pred-detail { font-size: 12px; color: var(--gray-500); }
+.pred-score { margin-left: auto; font-size: 14px; font-weight: 600; color: var(--green-700); }
+
+/* Collapsible */
+.collapsible-header {
+  display: flex; justify-content: space-between; align-items: center;
+  cursor: pointer; padding: 4px 0; user-select: none;
+}
+.collapsible-header .arrow { transition: transform 0.2s; font-size: 12px; color: var(--gray-400); }
+.collapsible-header .arrow.open { transform: rotate(180deg); }
+.collapsible-body { overflow: hidden; transition: max-height 0.3s ease; }
+
+/* Error */
+.error-card {
+  background: var(--red-50); border-radius: var(--radius); padding: 16px;
+  border-left: 4px solid var(--red-500); margin-bottom: 16px;
+}
+.error-card p { font-size: 14px; color: var(--red-500); }
+
+/* Optional soil toggle */
+.toggle-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+  cursor: pointer; font-size: 13px; color: var(--gray-600);
+}
+.toggle-switch {
+  width: 36px; height: 20px; border-radius: 10px; background: var(--gray-300);
+  position: relative; transition: background 0.2s; flex-shrink: 0;
+}
+.toggle-switch.on { background: var(--green-500); }
+.toggle-switch::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 16px; height: 16px; border-radius: 50%; background: white;
+  transition: transform 0.2s; box-shadow: var(--shadow);
+}
+.toggle-switch.on::after { transform: translateX(16px); }
+.soil-fields { margin-top: 12px; }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+
+<script type="text/babel">
+const { useState, useRef } = React;
+
+const API_BASE = "http://127.0.0.1:8080";
+
+const LANGUAGES = {
+  en: "English", hi: "हिन्दी", ta: "தமிழ்", te: "తెలుగు",
+  kn: "ಕನ್ನಡ", ml: "മലയാളം", mr: "मराठी", bn: "বাংলা",
+  gu: "ગુજરાતી", pa: "ਪੰਜਾਬੀ", or: "ଓଡ଼ିଆ",
+};
+
+const SECTION_ICONS = {
+  "TOP RECOMMENDATIONS": "🌾",
+  "RISK ASSESSMENT": "⚠️",
+  "FERTILIZER PLAN": "🧪",
+  "CROP CALENDAR": "📅",
+  "THIS WEEK": "🌤️",
+  "DIAGNOSIS": "🔍",
+  "IMMEDIATE ACTION": "🚨",
+  "PREVENTION": "🛡️",
+  "WHEN TO GET HELP": "🏥",
+};
+
+function parseAdvisory(text) {
+  if (!text) return [];
+  const sections = [];
+  const parts = text.split(/\*\*([A-Z][A-Z\s]+)\*\*/);
+  
+  for (let i = 1; i < parts.length; i += 2) {
+    const title = parts[i].trim();
+    const body = (parts[i + 1] || "").trim();
+    if (body) sections.push({ title, body });
+  }
+  
+  if (sections.length === 0) {
+    sections.push({ title: "ADVISORY", body: text });
+  }
+  return sections;
+}
+
+function renderMarkdown(text) {
+  let html = text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/^(\d+)\.\s/gm, '<li_num>')
+    .replace(/^[-•]\s/gm, '<li_bul>');
+  
+  const lines = html.split('\n').filter(l => l.trim());
+  let result = [];
+  let inList = false;
+  let listType = null;
+  
+  for (const line of lines) {
+    if (line.startsWith('<li_num>')) {
+      if (!inList || listType !== 'ol') {
+        if (inList) result.push(listType === 'ol' ? '</ol>' : '</ul>');
+        result.push('<ol>');
+        inList = true; listType = 'ol';
+      }
+      result.push('<li>' + line.replace('<li_num>', '') + '</li>');
+    } else if (line.startsWith('<li_bul>')) {
+      if (!inList || listType !== 'ul') {
+        if (inList) result.push(listType === 'ol' ? '</ol>' : '</ul>');
+        result.push('<ul>');
+        inList = true; listType = 'ul';
+      }
+      result.push('<li>' + line.replace('<li_bul>', '') + '</li>');
+    } else {
+      if (inList) {
+        result.push(listType === 'ol' ? '</ol>' : '</ul>');
+        inList = false; listType = null;
+      }
+      if (line.trim() === '---') continue;
+      result.push('<p>' + line + '</p>');
+    }
+  }
+  if (inList) result.push(listType === 'ol' ? '</ol>' : '</ul>');
+  return result.join('');
+}
+
+function App() {
+  const [tab, setTab] = useState("recommend");
+  const [lang, setLang] = useState("en");
+  
+  return (
+    <div>
+      <div className="header">
+        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+          <div>
+            <h1>🌱 AgriN</h1>
+            <p>AI-Powered Farming Advisory</p>
+          </div>
+          <select
+            value={lang} onChange={e => setLang(e.target.value)}
+            style={{
+              background:'rgba(255,255,255,0.2)', color:'white', border:'1px solid rgba(255,255,255,0.3)',
+              borderRadius:8, padding:'6px 10px', fontSize:13, fontFamily:'inherit'
+            }}
+          >
+            {Object.entries(LANGUAGES).map(([k,v]) => (
+              <option key={k} value={k} style={{color:'#111'}}>{v}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+      
+      <div className="tabs">
+        <button className={`tab ${tab === 'recommend' ? 'active' : ''}`} onClick={() => setTab('recommend')}>
+          🌾 Crop Advisory
+        </button>
+        <button className={`tab ${tab === 'disease' ? 'active' : ''}`} onClick={() => setTab('disease')}>
+          🔬 Disease Scan
+        </button>
+      </div>
+      
+      <div className="content">
+        {tab === 'recommend' ? <RecommendTab lang={lang}/> : <DiseaseTab lang={lang}/>}
+      </div>
+    </div>
+  );
+}
+
+function RecommendTab({ lang }) {
+  const [lat, setLat] = useState("");
+  const [lon, setLon] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  const [showSoil, setShowSoil] = useState(false);
+  const [soil, setSoil] = useState({ N: "", P: "", K: "", ph: "" });
+
+  const handleSubmit = async () => {
+    if (!lat || !lon) { setError("Please enter latitude and longitude"); return; }
+    setLoading(true); setError(null); setResult(null);
+    
+    try {
+      const body = { lat: parseFloat(lat), lon: parseFloat(lon), language: lang };
+      if (showSoil && soil.N) body.N = parseFloat(soil.N);
+      if (showSoil && soil.P) body.P = parseFloat(soil.P);
+      if (showSoil && soil.K) body.K = parseFloat(soil.K);
+      if (showSoil && soil.ph) body.ph = parseFloat(soil.ph);
+      
+      const res = await fetch(`${API_BASE}/recommend`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+      setResult(await res.json());
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <div className="card">
+        <div className="card-title">📍 Your Location</div>
+        <div className="field-row">
+          <div className="field">
+            <label>Latitude</label>
+            <input type="number" step="any" placeholder="e.g. 13.08" value={lat} onChange={e => setLat(e.target.value)}/>
+          </div>
+          <div className="field">
+            <label>Longitude</label>
+            <input type="number" step="any" placeholder="e.g. 80.27" value={lon} onChange={e => setLon(e.target.value)}/>
+          </div>
+        </div>
+        
+        <div className="toggle-row" onClick={() => setShowSoil(!showSoil)}>
+          <div className={`toggle-switch ${showSoil ? 'on' : ''}`}></div>
+          <span>I have my Soil Health Card values</span>
+        </div>
+        
+        {showSoil && (
+          <div className="soil-fields">
+            <div className="field-row">
+              <div className="field">
+                <label>Nitrogen (kg/ha)</label>
+                <input type="number" placeholder="N" value={soil.N} onChange={e => setSoil({...soil, N: e.target.value})}/>
+              </div>
+              <div className="field">
+                <label>Phosphorus (kg/ha)</label>
+                <input type="number" placeholder="P" value={soil.P} onChange={e => setSoil({...soil, P: e.target.value})}/>
+              </div>
+            </div>
+            <div className="field-row">
+              <div className="field">
+                <label>Potassium (kg/ha)</label>
+                <input type="number" placeholder="K" value={soil.K} onChange={e => setSoil({...soil, K: e.target.value})}/>
+              </div>
+              <div className="field">
+                <label>Soil pH</label>
+                <input type="number" step="0.1" placeholder="pH" value={soil.ph} onChange={e => setSoil({...soil, ph: e.target.value})}/>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        <button className="btn btn-primary" onClick={handleSubmit} disabled={loading}>
+          {loading ? "" : "🌾"} {loading ? "Analyzing..." : "Get Crop Advisory"}
+        </button>
+      </div>
+      
+      {loading && (
+        <div className="loader">
+          <div className="spinner"></div>
+          <div className="loader-text">
+            Fetching soil, climate & satellite data...<br/>
+            <span style={{fontSize:12,opacity:0.7}}>This takes 15-30 seconds</span>
+          </div>
+        </div>
+      )}
+      
+      {error && <div className="error-card"><p>❌ {error}</p></div>}
+      
+      {result && <RecommendResult data={result}/>}
+    </div>
+  );
+}
+
+function RecommendResult({ data }) {
+  const { summary, advisory, predictions, data_sources } = data;
+  const sections = parseAdvisory(advisory);
+  
+  return (
+    <div>
+      <div className="summary-card">
+        <div className="summary-title">
+          {summary?.top_crop ? summary.top_crop.charAt(0).toUpperCase() + summary.top_crop.slice(1) : "—"}
+        </div>
+        <div className="summary-subtitle">
+          {summary?.location || "Unknown location"} • {summary?.season || "—"} season
+          {summary?.season_auto ? " (auto-detected)" : ""}
+        </div>
+        <div className="summary-badges">
+          <span className="badge badge-green">🌾 Best match: {summary?.confidence || "—"}</span>
+          <span className={`badge ${summary?.soil_confidence === 'high' ? 'badge-green' : 'badge-amber'}`}>
+            🧪 Soil: {summary?.soil_confidence || "—"}
+          </span>
+          {data_sources?.satellite?.ndvi && (
+            <span className="badge badge-blue">🛰️ NDVI: {data_sources.satellite.ndvi}</span>
+          )}
+        </div>
+      </div>
+      
+      {predictions && predictions.length > 0 && (
+        <div className="predictions">
+          {predictions.slice(0, 3).map((p, i) => (
+            <div className="pred-card" key={i}>
+              <div className={`pred-rank pred-rank-${i+1}`}>{i+1}</div>
+              <div>
+                <div className="pred-name">{p.crop}</div>
+                <div className="pred-detail">
+                  {p.dominant_factor
+                    ? `Driven by ${p.dominant_factor.feature} (${p.dominant_factor.percentage}%)`
+                    : ""}
+                </div>
+              </div>
+              <div className="pred-score">{(p.final_score * 100).toFixed(0)}%</div>
+            </div>
+          ))}
+        </div>
+      )}
+      
+      <div className="advisory">
+        {sections.map((sec, i) => (
+          <div className="advisory-section" key={i}>
+            <h3>{SECTION_ICONS[sec.title] || "📋"} {sec.title}</h3>
+            <div dangerouslySetInnerHTML={{ __html: renderMarkdown(sec.body) }}/>
+          </div>
+        ))}
+      </div>
+      
+      {data_sources && (
+        <div className="card" style={{marginTop: 16}}>
+          <div className="card-title" style={{fontSize:13}}>📊 Data Sources</div>
+          <div className="data-sources" style={{borderTop:'none', paddingTop:0}}>
+            <span className="source-pill">🧪 Soil: {data_sources.soil?.source || "—"}</span>
+            <span className="source-pill">🌡️ Climate: {data_sources.climate?.years || "—"} years</span>
+            <span className="source-pill">🌧️ 7-day rain: {data_sources.forecast?.rainfall_7d || "—"}mm</span>
+            <span className="source-pill">🛰️ NDVI: {data_sources.satellite?.interpretation || "—"}</span>
+          </div>
+          {data_sources.soil?.note && (
+            <p style={{fontSize:12, color:'var(--gray-500)', marginTop:8}}>{data_sources.soil.note}</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DiseaseTab({ lang }) {
+  const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [lat, setLat] = useState("");
+  const [lon, setLon] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  const fileRef = useRef();
+
+  const handleFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImage(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const handleSubmit = async () => {
+    if (!image) { setError("Please upload a photo of the affected leaf"); return; }
+    setLoading(true); setError(null); setResult(null);
+    
+    try {
+      const form = new FormData();
+      form.append("file", image);
+      form.append("language", lang);
+      if (lat) form.append("lat", lat);
+      if (lon) form.append("lon", lon);
+      
+      const res = await fetch(`${API_BASE}/disease`, { method: "POST", body: form });
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+      setResult(await res.json());
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <div className="card">
+        <div className="card-title">📸 Upload Leaf Photo</div>
+        <div
+          className={`upload-area ${imagePreview ? 'has-image' : ''}`}
+          onClick={() => fileRef.current?.click()}
+        >
+          {imagePreview
+            ? <img src={imagePreview} alt="Uploaded leaf"/>
+            : <>
+                <div className="upload-icon">📷</div>
+                <div className="upload-text">Tap to take a photo or choose from gallery</div>
+              </>
+          }
+          <input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handleFile}/>
+        </div>
+        
+        <div style={{marginTop:14}}>
+          <div className="card-title" style={{fontSize:13, color:'var(--gray-500)'}}>📍 Location (optional — for satellite context)</div>
+          <div className="field-row">
+            <div className="field">
+              <input type="number" step="any" placeholder="Latitude" value={lat} onChange={e => setLat(e.target.value)}/>
+            </div>
+            <div className="field">
+              <input type="number" step="any" placeholder="Longitude" value={lon} onChange={e => setLon(e.target.value)}/>
+            </div>
+          </div>
+        </div>
+        
+        <button className="btn btn-primary" onClick={handleSubmit} disabled={loading || !image}>
+          {loading ? "" : "🔬"} {loading ? "Diagnosing..." : "Scan for Disease"}
+        </button>
+      </div>
+      
+      {loading && (
+        <div className="loader">
+          <div className="spinner"></div>
+          <div className="loader-text">Analyzing leaf pattern...</div>
+        </div>
+      )}
+      
+      {error && <div className="error-card"><p>❌ {error}</p></div>}
+      
+      {result && <DiseaseResult data={result}/>}
+    </div>
+  );
+}
+
+function DiseaseResult({ data }) {
+  const { summary, advisory, details } = data;
+  const sections = parseAdvisory(advisory);
+  const isHealthy = summary?.status === "healthy";
+  
+  return (
+    <div>
+      <div className="summary-card" style={isHealthy ? {background:'var(--green-50)', borderColor:'var(--green-500)'} : {background:'var(--amber-50)', borderColor:'var(--amber-500)'}}>
+        <div className="summary-title">
+          {isHealthy ? "✅ " : "⚠️ "}
+          {summary?.disease || "Unknown"}
+        </div>
+        <div className="summary-subtitle">
+          {summary?.crop || "—"} • Confidence: {summary?.confidence || "—"}
+        </div>
+      </div>
+      
+      {details?.all_predictions && (
+        <div className="card">
+          <div className="card-title" style={{fontSize:13}}>Other possibilities</div>
+          {details.all_predictions.slice(1, 4).map((p, i) => (
+            <div key={i} style={{display:'flex', justifyContent:'space-between', padding:'6px 0', fontSize:13, color:'var(--gray-600)'}}>
+              <span>{p.crop} — {p.disease || "Healthy"}</span>
+              <span style={{fontWeight:500}}>{(p.confidence * 100).toFixed(1)}%</span>
+            </div>
+          ))}
+        </div>
+      )}
+      
+      <div className="advisory">
+        {sections.map((sec, i) => (
+          <div className="advisory-section" key={i}>
+            <h3>{SECTION_ICONS[sec.title] || "📋"} {sec.title}</h3>
+            <div dangerouslySetInnerHTML={{ __html: renderMarkdown(sec.body) }}/>
+          </div>
+        ))}
+      </div>
+      
+      {details?.satellite?.ndvi && (
+        <div className="card">
+          <div className="card-title" style={{fontSize:13}}>🛰️ Satellite Context</div>
+          <p style={{fontSize:13, color:'var(--gray-600)'}}>
+            NDVI: {details.satellite.ndvi} — {details.satellite.interpretation}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('app')).render(<App/>);
+</script>
+</body>
+</html>
