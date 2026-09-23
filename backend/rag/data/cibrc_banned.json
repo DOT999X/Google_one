@@ -1,0 +1,22 @@
+{
+  "banned_pesticides": [
+    "Aldrin", "Benzene hexachloride", "Calcium cyanide", "Chlordane",
+    "Chlorofenvinphos", "Copper acetoarsenite", "Diazinon",
+    "Dibromochloropropane", "Dichlorvos", "Dicofol", "Dieldrin",
+    "Dinocap", "Endosulfan", "Endrin", "Ethylmercury chloride",
+    "Ethyl parathion", "Ethylene dibromide", "Fenarimol", "Fenthion",
+    "Heptachlor", "Lindane", "Linuron", "Maleic hydrazide", "Menazon",
+    "Methomyl", "Methoxyethylmercury chloride", "Methyl parathion",
+    "Metoxuron", "Nitrofen", "Paraquat dimethyl sulfate",
+    "Pentachloronitrobenzene", "Pentachlorophenol", "Phenylmercury acetate",
+    "Phorate", "Phosphamidon", "Sodium cyanide", "Sodium methanearsonate",
+    "Tetradifon", "Thiometon", "Toxaphene", "Triazophos", "Tridemorph"
+  ],
+  "restricted_pesticides": [
+    "Aluminium phosphide", "Captafol", "Cypermethrin", "Dimethoate",
+    "Diuron", "Malathion", "Methyl bromide", "Monocrotophos",
+    "Oxythioquinox", "Sodium cyanide"
+  ],
+  "source": "CIBRC / ppqs.gov.in — Central Insecticides Board & Registration Committee",
+  "last_updated": "2024-10"
+}

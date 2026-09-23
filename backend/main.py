@@ -1,15 +1,16 @@
 """
-AgriN — FastAPI backend v3 (patched)
-  Stream 1: Plant disease detection (EfficientNet-B3)
-  Stream 2: Crop recommendation (XGBoost + SHAP + regional yield reranking)
-  Advisory: Gemini Flash generates structured, localized advice
+AgriN — FastAPI backend v4 (RAG + async)
+  Stream 1: Plant disease detection (EfficientNet-B3) + RAG grounding
+  Stream 2: Crop recommendation (XGBoost + SHAP + regional yield reranking) + RAG grounding
+  Advisory: Gemini Flash generates structured, localized advice grounded in NIPHM/ICAR data
+  Safety: CIBRC banned pesticide post-validation
 
 Changes from v3:
-  - SoilGrids fallback: detects null data, auto-falls back to state averages
-  - Reverse geocoding: robust Nominatim field handling
-  - Structured Gemini response with labeled sections
-  - Multilingual fix: explicit language instruction
-  - Clean API response: summary + sections, no raw data dumps
+  - RAG integration: ChromaDB vector store with NIPHM IPM packages
+  - CIBRC safety layer: banned pesticide detection in advisory output
+  - Async parallelization: climate normals fetch 10 years in parallel (not sequential)
+  - Removed dead SoilGrids call (API is officially paused, was wasting 1-2s)
+  - Gemini prompts now include RAG context + banned pesticide list
 """
 
 from dotenv import load_dotenv
@@ -51,6 +52,20 @@ try:
 except ImportError:
     GEMINI_AVAILABLE = False
     logging.warning("google-generativeai not installed — Gemini disabled")
+
+# ── RAG imports ──────────────────────────────────────────────────────────
+RAG_AVAILABLE = False
+try:
+    from rag.store import get_collection
+    from rag.retrieval import (
+        retrieve_for_crop_advisory,
+        retrieve_for_disease_advisory,
+        format_rag_context,
+    )
+    from rag.safety import check_advisory, get_banned_list_for_prompt
+    RAG_AVAILABLE = True
+except ImportError:
+    logging.warning("RAG module not available — running without retrieval grounding")
 
 # ---------------------------------------------------------------------------
 # Config
@@ -109,7 +124,7 @@ logger = logging.getLogger("agrin")
 # ---------------------------------------------------------------------------
 # App
 # ---------------------------------------------------------------------------
-app = FastAPI(title="AgriN API", version="3.0.0")
+app = FastAPI(title="AgriN API", version="4.0.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], allow_credentials=True,
@@ -188,6 +203,14 @@ async def load_models():
         genai.configure(api_key=GEMINI_API_KEY)
         logger.info("Gemini configured")
 
+    # RAG
+    if RAG_AVAILABLE:
+        try:
+            col = get_collection()
+            logger.info(f"RAG index loaded: {col.count()} chunks")
+        except Exception as e:
+            logger.warning(f"RAG index not ready: {e}")
+
 
 # ---------------------------------------------------------------------------
 # Reverse geocoding + season detection
@@ -196,7 +219,7 @@ async def reverse_geocode(lat: float, lon: float) -> dict:
     """Reverse geocode lat/lon to Indian state via Nominatim."""
     url = "https://nominatim.openstreetmap.org/reverse"
     params = {"lat": lat, "lon": lon, "format": "json", "zoom": 5, "addressdetails": 1}
-    headers = {"User-Agent": "AgriN/3.0 (agricultural-advisory-prototype)"}
+    headers = {"User-Agent": "AgriN/4.0 (agricultural-advisory-prototype)"}
 
     try:
         async with httpx.AsyncClient(timeout=10) as client:
@@ -205,26 +228,16 @@ async def reverse_geocode(lat: float, lon: float) -> dict:
             data = resp.json()
 
         address = data.get("address", {})
-
-        # Nominatim returns state in different fields depending on country
         state = (
-            address.get("state")
-            or address.get("province")
-            or address.get("region")
-            or address.get("state_district")
-            or ""
+            address.get("state") or address.get("province")
+            or address.get("region") or address.get("state_district") or ""
         ).strip()
-
         district = (
-            address.get("state_district")
-            or address.get("county")
-            or address.get("city")
-            or ""
+            address.get("state_district") or address.get("county")
+            or address.get("city") or ""
         ).strip()
-
         country = address.get("country", "").strip()
 
-        # Normalize common variations
         state_fixes = {
             "Tamilnadu": "Tamil Nadu", "Tamil Nādu": "Tamil Nadu",
             "Andhra pradesh": "Andhra Pradesh",
@@ -235,14 +248,12 @@ async def reverse_geocode(lat: float, lon: float) -> dict:
             "Arunachal pradesh": "Arunachal Pradesh",
             "Jammu and Kashmir": "Jammu And Kashmir",
         }
-        # Try exact match first, then title-case match
         state = state_fixes.get(state, state)
         if state and state not in STATE_SOIL_DEFAULTS:
             title_state = state.title()
             state = state_fixes.get(title_state, title_state)
 
         logger.info(f"Geocoded: ({lat}, {lon}) → state={state}, district={district}")
-
         return {"state": state if state else None, "district": district, "country": country, "source": "nominatim"}
     except Exception as e:
         logger.error(f"Reverse geocoding error: {e}")
@@ -261,33 +272,24 @@ def detect_season(month: int = None) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Soil data — SoilGrids with robust fallback
+# Soil data — state averages (SoilGrids removed — API officially paused)
 # ---------------------------------------------------------------------------
 async def fetch_soil_data(lat: float, lon: float, state: str = None) -> dict:
     """
-    Soil data with fallback chain:
-    1. SoilGrids API (if it responds AND returns non-null values)
-    2. State-level Soil Health Card averages
-    3. National average defaults
+    Soil data from state-level SHC averages.
+    SoilGrids REST API call removed — it's officially paused and was wasting 1-2s.
+    Future: nearest-neighbor lookup from geo-tagged SHC data points.
     """
-    # Try SoilGrids first
-    soilgrids_result = await _try_soilgrids(lat, lon)
-    if soilgrids_result:
-        return soilgrids_result
-
-    # Fallback: state-level averages
     if state and state in STATE_SOIL_DEFAULTS:
         defaults = STATE_SOIL_DEFAULTS[state]
-        logger.info(f"Using state soil defaults for {state}")
         return {
             **defaults,
-            "source": f"state_average",
+            "source": "state_average",
             "source_detail": f"Soil Health Card state average for {state}",
             "confidence": "moderate",
             "confidence_note": f"Using average soil values for {state}. Enter your Soil Health Card values for better accuracy.",
         }
 
-    # Final fallback: national average
     logger.warning("Using national average soil defaults")
     return {
         "N": 40, "P": 20, "K": 30, "ph": 6.8,
@@ -298,59 +300,8 @@ async def fetch_soil_data(lat: float, lon: float, state: str = None) -> dict:
     }
 
 
-async def _try_soilgrids(lat: float, lon: float) -> Optional[dict]:
-    """Try SoilGrids. Returns None if API fails or returns null data."""
-    url = "https://rest.isric.org/soilgrids/v2.0/properties/query"
-    params = {
-        "lat": lat, "lon": lon,
-        "property": ["nitrogen", "phh2o", "clay", "cec"],
-        "depth": "0-5cm", "value": "mean",
-    }
-    try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            resp = await client.get(url, params=params)
-            resp.raise_for_status()
-            data = resp.json()
-
-        layers = data.get("properties", {}).get("layers", [])
-        soil = {}
-        for layer in layers:
-            name = layer["name"]
-            depths = layer.get("depths", [{}])
-            if depths:
-                val = depths[0].get("values", {}).get("mean")
-                soil[name] = val
-
-        # Check if we got real data (not all nulls)
-        non_null = {k: v for k, v in soil.items() if v is not None}
-        if len(non_null) < 2:
-            logger.warning(f"SoilGrids returned mostly nulls: {soil}")
-            return None
-
-        nitrogen_val = (soil.get("nitrogen") or 500) / 10.0
-        ph_val = (soil.get("phh2o") or 65) / 10.0
-        cec_val = soil.get("cec") or 150
-        clay_val = soil.get("clay") or 200
-        p_estimate = max(5, min(145, cec_val / 10.0 * 3.5))
-        k_estimate = max(5, min(205, clay_val / 10.0 * 2.5))
-
-        return {
-            "N": round(nitrogen_val, 1),
-            "P": round(p_estimate, 1),
-            "K": round(k_estimate, 1),
-            "ph": round(ph_val, 2),
-            "source": "soilgrids",
-            "source_detail": "ISRIC SoilGrids at 250m resolution",
-            "confidence": "moderate",
-            "confidence_note": "Satellite-derived soil estimate. Enter your Soil Health Card values for higher accuracy.",
-        }
-    except Exception as e:
-        logger.warning(f"SoilGrids failed: {e}")
-        return None
-
-
 # ---------------------------------------------------------------------------
-# Climate + Weather + NDVI
+# Climate + Weather + NDVI — ASYNC PARALLELIZED
 # ---------------------------------------------------------------------------
 def _get_season_date_ranges(season: str, years_back: int = 10):
     current_year = datetime.now().year
@@ -367,36 +318,56 @@ def _get_season_date_ranges(season: str, years_back: int = 10):
     return ranges
 
 
+async def _fetch_single_year_climate(client: httpx.AsyncClient,
+                                      lat: float, lon: float,
+                                      start_date: str, end_date: str,
+                                      year: int) -> Optional[dict]:
+    """Fetch climate data for a single year. Used in parallel."""
+    try:
+        resp = await client.get(
+            "https://archive-api.open-meteo.com/v1/archive",
+            params={
+                "latitude": lat, "longitude": lon,
+                "start_date": start_date, "end_date": end_date,
+                "daily": "temperature_2m_mean,relative_humidity_2m_mean,precipitation_sum",
+                "timezone": "auto",
+            }
+        )
+        if resp.status_code != 200:
+            return None
+        daily = resp.json().get("daily", {})
+        temps = [t for t in (daily.get("temperature_2m_mean") or []) if t is not None]
+        humids = [h for h in (daily.get("relative_humidity_2m_mean") or []) if h is not None]
+        precips = [p for p in (daily.get("precipitation_sum") or []) if p is not None]
+        if temps and humids and precips:
+            return {
+                "year": year, "temperature": np.mean(temps),
+                "humidity": np.mean(humids), "rainfall": sum(precips),
+            }
+    except Exception as e:
+        logger.warning(f"Climate fetch failed for year {year}: {e}")
+    return None
+
+
 async def fetch_climate_normals(lat: float, lon: float, season: str) -> dict:
-    """Recency-weighted 10-year seasonal climate averages."""
+    """
+    Recency-weighted 10-year seasonal climate averages.
+    v4: All 10 years fetched in PARALLEL via asyncio.gather (was sequential).
+    """
     decay = 0.85
     current_year = datetime.now().year
     date_ranges = _get_season_date_ranges(season, years_back=10)
-    yearly_data = []
 
     try:
         async with httpx.AsyncClient(timeout=30) as client:
-            for start_date, end_date, year in date_ranges:
-                resp = await client.get(
-                    "https://archive-api.open-meteo.com/v1/archive",
-                    params={
-                        "latitude": lat, "longitude": lon,
-                        "start_date": start_date, "end_date": end_date,
-                        "daily": "temperature_2m_mean,relative_humidity_2m_mean,precipitation_sum",
-                        "timezone": "auto",
-                    }
-                )
-                if resp.status_code != 200:
-                    continue
-                daily = resp.json().get("daily", {})
-                temps = [t for t in (daily.get("temperature_2m_mean") or []) if t is not None]
-                humids = [h for h in (daily.get("relative_humidity_2m_mean") or []) if h is not None]
-                precips = [p for p in (daily.get("precipitation_sum") or []) if p is not None]
-                if temps and humids and precips:
-                    yearly_data.append({
-                        "year": year, "temperature": np.mean(temps),
-                        "humidity": np.mean(humids), "rainfall": sum(precips),
-                    })
+            # ── PARALLEL fetch all 10 years at once ──
+            tasks = [
+                _fetch_single_year_climate(client, lat, lon, sd, ed, yr)
+                for sd, ed, yr in date_ranges
+            ]
+            results = await asyncio.gather(*tasks)
+
+        yearly_data = [r for r in results if r is not None]
 
         if not yearly_data:
             return {"error": "No climate data retrieved", "source": "open-meteo-historical"}
@@ -697,7 +668,7 @@ def predict_crop(features, feature_names, state=None, season=None, top_k=5):
 
 
 # ---------------------------------------------------------------------------
-# Gemini prompts — structured output
+# Gemini prompts — v4: RAG-augmented + CIBRC safety
 # ---------------------------------------------------------------------------
 def _lang_instruction(lang):
     name = SUPPORTED_LANGUAGES.get(lang, "English")
@@ -709,7 +680,8 @@ Do not use any English words except for scientific/technical terms that have no 
 Use simple, everyday {name} that a rural farmer would understand."""
 
 
-def build_disease_prompt(prediction, ndvi_data=None, alerts=None, language="en"):
+def build_disease_prompt(prediction, ndvi_data=None, alerts=None,
+                         language="en", rag_context=""):
     top = prediction["top_prediction"]
     ndvi = ""
     if ndvi_data and ndvi_data.get("ndvi"):
@@ -719,11 +691,27 @@ def build_disease_prompt(prediction, ndvi_data=None, alerts=None, language="en")
     if alerts:
         alert_text = "\nREGIONAL ALERTS:\n" + "\n".join(f"- {a['disease']}: {a['reports']} reports recently" for a in alerts)
 
+    # RAG grounding section
+    rag_section = ""
+    if rag_context:
+        banned = get_banned_list_for_prompt() if RAG_AVAILABLE else ""
+        rag_section = f"""
+
+OFFICIAL REFERENCE MATERIAL (from NIPHM/ICAR publications — use these for specific recommendations):
+---
+{rag_context}
+---
+
+IMPORTANT: Base your IMMEDIATE ACTION and PREVENTION advice on the reference material above when available.
+Cite specific chemical names, dosages, and application methods from the references.
+Do NOT recommend any of these BANNED pesticides: {banned}
+If the reference material doesn't cover this specific situation, say so and give general advice."""
+
     return f"""You are an agricultural advisor for Indian farmers.
 
 A farmer's {top['crop']} plant was diagnosed:
 - Disease: {top['disease'] or 'Healthy'} (Confidence: {top['confidence']*100:.0f}%)
-{ndvi}{alert_text}
+{ndvi}{alert_text}{rag_section}
 
 Give your response in this EXACT structure with these headers:
 
@@ -731,7 +719,7 @@ Give your response in this EXACT structure with these headers:
 What this disease is and how it affects the crop (2-3 sentences)
 
 **IMMEDIATE ACTION**
-Numbered steps the farmer should take right now (3-4 steps)
+Numbered steps the farmer should take right now (3-4 steps with specific chemicals and dosages)
 
 **PREVENTION**
 How to prevent this in future seasons (3-4 points)
@@ -740,11 +728,11 @@ How to prevent this in future seasons (3-4 points)
 When to visit the local Krishi Vigyan Kendra (1-2 sentences)
 
 {_lang_instruction(language)}
-Keep it under 250 words. Be specific — name exact products, dosages, timings."""
+Keep it under 300 words. Be specific — name exact products, dosages, timings."""
 
 
 def build_crop_prompt(context, climate, forecast, soil_source, soil_confidence,
-                      ndvi_data=None, language="en"):
+                      ndvi_data=None, language="en", rag_context=""):
     ndvi = ""
     if ndvi_data and ndvi_data.get("ndvi"):
         ndvi = f"\nVegetation: NDVI {ndvi_data['ndvi']} ({ndvi_data.get('interpretation', '')})"
@@ -754,13 +742,27 @@ def build_crop_prompt(context, climate, forecast, soil_source, soil_confidence,
     if rt and abs(rt) > 2:
         trend_alert = f"\n⚠ Rainfall {'declining' if rt < 0 else 'increasing'} by {abs(rt):.1f}mm/year over past decade."
 
-    # Build a clean forecast summary instead of raw JSON
     forecast_summary = "Unavailable"
     if forecast.get("dates"):
         total = forecast.get("rainfall_7d_total", 0)
         probs = forecast.get("daily_rain_probability", [])
         max_prob = max(probs) if probs else 0
         forecast_summary = f"{total}mm expected over 7 days, up to {max_prob}% rain probability"
+
+    # RAG grounding section
+    rag_section = ""
+    if rag_context:
+        banned = get_banned_list_for_prompt() if RAG_AVAILABLE else ""
+        rag_section = f"""
+
+OFFICIAL REFERENCE MATERIAL (from NIPHM/ICAR/SAU publications):
+---
+{rag_context}
+---
+
+IMPORTANT: Use the reference material above for specific fertilizer dosages, variety recommendations, 
+and pest management advice. Cite specific quantities and product names from the references.
+Do NOT recommend any of these BANNED pesticides: {banned}"""
 
     return f"""You are an agricultural advisor for Indian farmers.
 
@@ -777,6 +779,7 @@ Rainfall trend: {climate.get('rainfall_trend_per_year', '?')}mm/year | Temp tren
 
 MODEL PREDICTIONS (with SHAP — which factors drove each recommendation):
 {json.dumps(context['predictions'], indent=2)}
+{rag_section}
 
 Give your response in this EXACT structure with these headers:
 
@@ -807,10 +810,22 @@ Keep it under 600 words. Be specific with quantities, dates, product names."""
 # ---------------------------------------------------------------------------
 @app.get("/health")
 async def health():
+    rag_status = False
+    rag_chunks = 0
+    if RAG_AVAILABLE:
+        try:
+            col = get_collection()
+            rag_chunks = col.count()
+            rag_status = rag_chunks > 0
+        except:
+            pass
+
     return {
         "status": "ok",
+        "version": "4.0.0",
         "models": {"disease": disease_model is not None, "crop": crop_model is not None},
         "gemini": GEMINI_AVAILABLE and bool(GEMINI_API_KEY),
+        "rag": {"available": rag_status, "chunks": rag_chunks},
         "languages": list(SUPPORTED_LANGUAGES.keys()),
     }
 
@@ -822,7 +837,7 @@ async def disease_endpoint(
     lon: Optional[float] = Form(None),
     language: str = Form("en"),
 ):
-    """Stream 1: Crop disease diagnosis from leaf photo."""
+    """Stream 1: Crop disease diagnosis from leaf photo + RAG-grounded advisory."""
     contents = await file.read()
     try:
         image = Image.open(io.BytesIO(contents)).convert("RGB")
@@ -842,8 +857,30 @@ async def disease_endpoint(
 
     alerts = await get_disease_alerts(state) if state else []
     prediction = predict_disease(image)
-    prompt = build_disease_prompt(prediction, ndvi_data, alerts, language)
+
+    # ── RAG retrieval ──
+    rag_context = ""
+    if RAG_AVAILABLE:
+        top = prediction["top_prediction"]
+        try:
+            rag_results = retrieve_for_disease_advisory(
+                crop=top["crop"],
+                disease=top["disease"] or "healthy",
+            )
+            rag_context = format_rag_context(rag_results)
+            logger.info(f"RAG: {len(rag_results)} chunks retrieved for {top['crop']}/{top['disease']}")
+        except Exception as e:
+            logger.warning(f"RAG retrieval failed: {e}")
+
+    prompt = build_disease_prompt(prediction, ndvi_data, alerts, language, rag_context)
     advisory = await call_gemini(prompt)
+
+    # ── CIBRC safety check ──
+    if RAG_AVAILABLE:
+        safety_result = check_advisory(advisory)
+        advisory = safety_result["advisory"]
+        if not safety_result["safe"]:
+            logger.warning(f"CIBRC: banned pesticides in advisory: {safety_result['banned_found']}")
 
     top = prediction["top_prediction"]
     return {
@@ -859,6 +896,7 @@ async def disease_endpoint(
             "satellite": ndvi_data,
             "location": {"state": state, "district": geo.get("district")} if state else None,
             "alerts": alerts if alerts else None,
+            "rag_grounded": bool(rag_context),
         },
         "language": SUPPORTED_LANGUAGES.get(language, "English"),
     }
@@ -869,6 +907,7 @@ async def recommend_endpoint(req: CropRecommendRequest):
     """
     Stream 2: Crop recommendation from location only.
     Auto-infers state, season, soil, climate, satellite data.
+    v4: RAG-grounded advisory + parallelized climate fetch.
     """
     # Step 1: Location intelligence
     geo = await reverse_geocode(req.lat, req.lon)
@@ -878,7 +917,7 @@ async def recommend_endpoint(req: CropRecommendRequest):
 
     logger.info(f"Location: state={state}, district={district}, season={season}")
 
-    # Step 2: Parallel data fetch
+    # Step 2: Parallel data fetch (soil is instant now — no SoilGrids call)
     soil_data, climate, forecast, ndvi = await asyncio.gather(
         fetch_soil_data(req.lat, req.lon, state),
         fetch_climate_normals(req.lat, req.lon, season),
@@ -903,11 +942,30 @@ async def recommend_endpoint(req: CropRecommendRequest):
     # Step 4: Predict
     context = predict_crop(features, crop_features, state, season, top_k=5)
 
-    # Step 5: Gemini advisory
-    prompt = build_crop_prompt(context, climate, forecast, soil_source, soil_conf, ndvi, req.language)
+    # Step 5: RAG retrieval for top crop
+    rag_context = ""
+    if RAG_AVAILABLE and context["predictions"]:
+        top_crop = context["predictions"][0]["crop"]
+        try:
+            rag_results = retrieve_for_crop_advisory(
+                crop=top_crop, state=state, season=season,
+            )
+            rag_context = format_rag_context(rag_results)
+            logger.info(f"RAG: {len(rag_results)} chunks retrieved for {top_crop}")
+        except Exception as e:
+            logger.warning(f"RAG retrieval failed: {e}")
+
+    # Step 6: Gemini advisory (now with RAG context)
+    prompt = build_crop_prompt(context, climate, forecast, soil_source,
+                               soil_conf, ndvi, req.language, rag_context)
     advisory = await call_gemini(prompt)
 
-    # Step 6: Clean response
+    # Step 7: CIBRC safety check
+    if RAG_AVAILABLE:
+        safety_result = check_advisory(advisory)
+        advisory = safety_result["advisory"]
+
+    # Step 8: Clean response
     top_crop = context["predictions"][0] if context["predictions"] else None
 
     result = {
@@ -938,6 +996,7 @@ async def recommend_endpoint(req: CropRecommendRequest):
                 "ndvi": ndvi.get("ndvi") if ndvi else None,
                 "interpretation": ndvi.get("interpretation") if ndvi else None,
             },
+            "rag_grounded": bool(rag_context),
         },
         "language": SUPPORTED_LANGUAGES.get(req.language, "English"),
     }
@@ -946,7 +1005,7 @@ async def recommend_endpoint(req: CropRecommendRequest):
         "lat": req.lat, "lon": req.lon, "state": state, "district": district,
         "season": season, "top_crop": top_crop["crop"] if top_crop else None,
         "features": context["input_features"], "soil_confidence": soil_conf,
-        "language": req.language,
+        "language": req.language, "rag_grounded": bool(rag_context),
     })
 
     return result
@@ -959,10 +1018,25 @@ async def recommend_manual_endpoint(req: ManualCropRequest):
     features = [req.N, req.P, req.K, req.temperature, req.humidity, req.ph, req.rainfall]
     context = predict_crop(features, crop_features, req.state, season, top_k=5)
 
+    # RAG for top crop
+    rag_context = ""
+    if RAG_AVAILABLE and context["predictions"]:
+        top_crop = context["predictions"][0]["crop"]
+        try:
+            rag_results = retrieve_for_crop_advisory(crop=top_crop, state=req.state, season=season)
+            rag_context = format_rag_context(rag_results)
+        except Exception as e:
+            logger.warning(f"RAG retrieval failed: {e}")
+
     climate = {"note": "Manual entry"}
     forecast = {"note": "No location"}
-    prompt = build_crop_prompt(context, climate, forecast, "manual (soil health card)", "high", None, req.language)
+    prompt = build_crop_prompt(context, climate, forecast, "manual (soil health card)",
+                               "high", None, req.language, rag_context)
     advisory = await call_gemini(prompt)
+
+    if RAG_AVAILABLE:
+        safety_result = check_advisory(advisory)
+        advisory = safety_result["advisory"]
 
     top = context["predictions"][0] if context["predictions"] else None
     return {
@@ -973,6 +1047,7 @@ async def recommend_manual_endpoint(req: ManualCropRequest):
         },
         "advisory": advisory,
         "predictions": context["predictions"],
+        "rag_grounded": bool(rag_context),
         "language": SUPPORTED_LANGUAGES.get(req.language, "English"),
     }
 
