@@ -1,10 +1,14 @@
 {
   "banana": "banana",
-  "blackgram": "gram",
+  "blackgram": "urad",
+  "chickpea": "gram",
   "coconut": "coconut",
   "cotton": "cotton(lint)",
   "jute": "jute",
+  "lentil": "masoor",
   "maize": "maize",
   "mothbeans": "moth",
+  "mungbean": "moong(green gram)",
+  "pigeonpeas": "arhar/tur",
   "rice": "rice"
 }

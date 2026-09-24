@@ -141,6 +141,13 @@ app.add_middleware(
 # Global model references
 # ---------------------------------------------------------------------------
 disease_model = disease_label_map = disease_transform = None
+DEFAULT_VIABILITY = 0.5  # overwritten at startup with the real dataset mean
+ood_centroids = None  # loaded at startup: {class_name: {centroid, ...}}, plus global_ood_threshold
+ood_threshold = None
+ood_centroid_matrix = None  # numpy array (38, 1536), for fast vectorized distance computation
+ood_centroid_names = None   # list of class_name, same order as ood_centroid_matrix rows
+_ood_feature_capture = {}   # populated by the forward hook during predict_disease()
+DEFAULT_VIABILITY = 0.5  # overwritten at startup with the real dataset mean
 crop_model = crop_explainer = crop_label_map = None
 crop_name_map = yield_lookup = crop_features = shap_layout = None
 firestore_client = bigquery_client = gcs_client = None
@@ -152,6 +159,7 @@ async def load_models():
     global crop_model, crop_explainer, crop_label_map, crop_name_map
     global yield_lookup, crop_features, shap_layout
     global firestore_client, bigquery_client, gcs_client
+    global ood_centroids, ood_threshold, ood_centroid_matrix, ood_centroid_names
 
     # Disease model
     dw = os.path.join(MODEL_DIR, "best_model.pth")
@@ -174,6 +182,45 @@ async def load_models():
         ])
         logger.info(f"Disease model loaded: {num_classes} classes, device={DEVICE}")
 
+        # Out-of-distribution (OOD) detection: the classifier's softmax
+        # output is always confident (forced to sum to 100% across the 38
+        # known classes) even for images that don't resemble any of them
+        # — a different plant species, a genuinely unfamiliar disease, a
+        # real-world photo far outside PlantVillage's clean studio style.
+        # Comparing the image's raw feature embedding (captured via a
+        # forward hook, before the classifier head) to precomputed class
+        # centroids gives an independent, cheap signal softmax can't
+        # provide: how far this image actually sits from anything the
+        # model was trained on. See scripts/compute_ood_centroids.py and
+        # the AgriN OOD Centroid Computation notebook for how these were
+        # generated (one-time, offline, from the trained model itself).
+        oc_path = os.path.join(MODEL_DIR, "ood_centroids.json")
+        if os.path.exists(oc_path):
+            with open(oc_path) as f:
+                ood_centroids = json.load(f)
+            ood_threshold = ood_centroids["global_ood_threshold"]
+            ood_centroid_names = list(ood_centroids["class_centroids"].keys())
+            ood_centroid_matrix = np.stack([
+                np.array(ood_centroids["class_centroids"][name]["centroid"])
+                for name in ood_centroid_names
+            ])
+            # Register the same kind of forward hook used to compute the
+            # centroids — captures the 1536-dim embedding on every disease
+            # prediction, with negligible overhead (no extra forward pass).
+            def _ood_hook(module, inp, output):
+                _ood_feature_capture["features"] = output.detach()
+            disease_model.classifier[0].register_forward_hook(_ood_hook)
+            logger.info(
+                f"OOD detection enabled: {len(ood_centroid_names)} class centroids, "
+                f"threshold={ood_threshold:.2f}"
+            )
+        else:
+            logger.warning(
+                "ood_centroids.json not found — disease predictions will NOT be "
+                "checked for out-of-distribution inputs. Run scripts/compute_ood_centroids.py "
+                "(or the Kaggle notebook) once to enable this."
+            )
+
     # Crop model
     cm = os.path.join(MODEL_DIR, "crop_xgb_model.json")
     if os.path.exists(cm):
@@ -185,6 +232,24 @@ async def load_models():
             crop_name_map = json.load(f)
         with open(os.path.join(MODEL_DIR, "yield_lookup.json")) as f:
             yield_lookup = json.load(f)
+        # Compute a fair default viability for crops with no regional
+        # yield-dataset match, instead of the previous hardcoded 1.0.
+        # Defaulting unmapped crops to a "perfect" score silently rewarded
+        # missing data — a crop with no regional info would outrank a
+        # crop with real (often much lower) regional viability, purely
+        # because the map was incomplete. The dataset-wide mean viability
+        # is a much fairer neutral prior: "assume average regional fit"
+        # rather than "assume perfect regional fit."
+        global DEFAULT_VIABILITY
+        all_viabilities = [
+            leaf["viability"]
+            for state_dict in yield_lookup.values()
+            for season_dict in state_dict.values()
+            for leaf in season_dict.values()
+            if isinstance(leaf, dict) and "viability" in leaf
+        ]
+        DEFAULT_VIABILITY = round(sum(all_viabilities) / len(all_viabilities), 4) if all_viabilities else 0.5
+        logger.info(f"Default viability for unmapped crops: {DEFAULT_VIABILITY} (dataset mean, n={len(all_viabilities)})")
         with open(os.path.join(MODEL_DIR, "feature_config.json")) as f:
             config = json.load(f)
             crop_features = config["features"]
@@ -636,6 +701,10 @@ def predict_disease(image: Image.Image) -> dict:
         raise HTTPException(503, "Disease model not loaded")
     inp = disease_transform(image).unsqueeze(0).to(DEVICE)
     with torch.no_grad():
+        # The forward hook (registered at startup, if ood_centroids.json
+        # was found) captures the 1536-dim embedding into
+        # _ood_feature_capture as a side effect of this same forward pass
+        # — no extra inference cost.
         probs = torch.softmax(disease_model(inp), dim=1)[0]
     top5 = torch.argsort(probs, descending=True)[:5]
     preds = []
@@ -647,7 +716,37 @@ def predict_disease(image: Image.Image) -> dict:
             "status": info["status"], "disease": info["disease"],
             "confidence": round(probs[i].item(), 4),
         })
-    return {"top_prediction": preds[0], "all_predictions": preds}
+
+    result = {"top_prediction": preds[0], "all_predictions": preds}
+
+    # Out-of-distribution check — a signal softmax alone cannot provide.
+    # See the OOD loading block in load_models() for why this matters:
+    # softmax confidence can be high (even 90%+) on an image that doesn't
+    # resemble any of the 38 trained classes at all, because softmax is
+    # mathematically forced to pick SOMETHING. Nearest-centroid distance
+    # in the raw feature space is independent of that and catches this.
+    if ood_centroid_matrix is not None and "features" in _ood_feature_capture:
+        feat = _ood_feature_capture["features"].cpu().numpy().flatten()
+        distances = np.linalg.norm(ood_centroid_matrix - feat, axis=1)
+        nearest_idx = int(np.argmin(distances))
+        nearest_distance = float(distances[nearest_idx])
+        nearest_class = ood_centroid_names[nearest_idx]
+        is_ood = nearest_distance > ood_threshold
+
+        result["ood_check"] = {
+            "is_out_of_distribution": is_ood,
+            "nearest_known_class": nearest_class,
+            "distance_to_nearest_class": round(nearest_distance, 2),
+            "threshold": round(ood_threshold, 2),
+        }
+        if is_ood:
+            logger.warning(
+                f"OOD flagged: distance={nearest_distance:.2f} > threshold={ood_threshold:.2f} "
+                f"(nearest known class: {nearest_class}) — prediction confidence "
+                f"({preds[0]['confidence']*100:.0f}%) may not be trustworthy"
+            )
+
+    return result
 
 
 def predict_crop(features, feature_names, state=None, season=None, top_k=5):
@@ -661,7 +760,14 @@ def predict_crop(features, feature_names, state=None, season=None, top_k=5):
     for idx in range(len(proba)):
         crop = crop_label_map[idx]
         score = float(proba[idx])
-        viab, rinfo = 1.0, None
+        # Default to the dataset-wide mean viability (a neutral "assume
+        # average regional fit" prior) rather than a hardcoded 1.0, which
+        # previously gave crops with NO regional data an artificial
+        # "perfect fit" score — silently outranking crops that had real,
+        # often lower, regional viability data. viability_is_estimated
+        # makes this visible in the API response instead of blending a
+        # guess in indistinguishably from real data.
+        viab, rinfo, is_estimated = DEFAULT_VIABILITY, None, True
         if state and season and crop in crop_name_map:
             yc = crop_name_map[crop]
             if yc in yield_lookup:
@@ -669,8 +775,10 @@ def predict_crop(features, feature_names, state=None, season=None, top_k=5):
                 if sd:
                     viab = sd["viability"]
                     rinfo = sd
+                    is_estimated = False
         scored[idx] = {"crop": crop, "model_score": round(score, 4),
                        "viability": round(viab, 4),
+                       "viability_is_estimated": is_estimated,
                        "final_score": round(score * viab, 4), "regional_info": rinfo}
 
     top = sorted(scored.values(), key=lambda x: x["final_score"], reverse=True)[:top_k]
@@ -679,6 +787,7 @@ def predict_crop(features, feature_names, state=None, season=None, top_k=5):
         idx = [k for k, v in crop_label_map.items() if v == c["crop"]][0]
         entry = {"rank": rank + 1, "crop": c["crop"],
                  "model_score": c["model_score"], "viability": c["viability"],
+                 "viability_is_estimated": c["viability_is_estimated"],
                  "final_score": c["final_score"]}
         if sv is not None:
             cs = sv[0, :, idx] if shap_layout == "new" else sv[idx, 0, :]
@@ -726,6 +835,30 @@ def build_disease_prompt(prediction, ndvi_data=None, alerts=None,
     if alerts:
         alert_text = "\nREGIONAL ALERTS:\n" + "\n".join(f"- {a['disease']}: {a['reports']} reports recently" for a in alerts)
 
+    # Out-of-distribution warning — this changes HOW Gemini writes the
+    # advisory, not just what data it cites. A high softmax confidence
+    # number means nothing if the image itself doesn't resemble anything
+    # the model was trained on; the prompt needs to say so explicitly or
+    # Gemini will (reasonably) trust the confidence score at face value.
+    ood_warning = ""
+    ood = prediction.get("ood_check")
+    if ood and ood["is_out_of_distribution"]:
+        ood_warning = f"""
+
+IMPORTANT — UNCERTAIN IDENTIFICATION WARNING:
+This image's visual features sit unusually far from anything in the model's
+38 known crop/disease classes (distance {ood['distance_to_nearest_class']} vs.
+a normal threshold of {ood['threshold']}). This means the plant or disease
+photographed may NOT be one the system is actually trained to recognize —
+the {top['confidence']*100:.0f}% confidence score above may be misleading,
+since the model is forced to pick its closest guess regardless of whether
+a good match truly exists.
+Do NOT present this diagnosis as confident or certain. Explicitly tell the
+farmer this identification is uncertain and may be wrong, and recommend
+they get an in-person opinion from their local Krishi Vigyan Kendra (KVK)
+or agriculture extension officer before applying any chemical treatment,
+rather than following the treatment steps below as if they were certain."""
+
     # RAG grounding section
     rag_section = ""
     if rag_context:
@@ -746,21 +879,25 @@ If the reference material doesn't cover this specific situation, say so and give
 
 A farmer's {top['crop']} plant was diagnosed:
 - Disease: {top['disease'] or 'Healthy'} (Confidence: {top['confidence']*100:.0f}%)
-{ndvi}{alert_text}{rag_section}
+{ndvi}{alert_text}{ood_warning}{rag_section}
 
 Give your response in this EXACT structure with these headers:
 
 **DIAGNOSIS**
-What this disease is and how it affects the crop (2-3 sentences)
+What this disease is and how it affects the crop (2-3 sentences). If there is an
+uncertain-identification warning above, lead with that uncertainty instead of
+stating the diagnosis as fact.
 
 **IMMEDIATE ACTION**
-Numbered steps the farmer should take right now (3-4 steps with specific chemicals and dosages)
+Numbered steps the farmer should take right now (3-4 steps with specific chemicals and dosages).
+If identification is uncertain, frame these as "if this diagnosis is correct" rather than definite.
 
 **PREVENTION**
 How to prevent this in future seasons (3-4 points)
 
 **WHEN TO GET HELP**
-When to visit the local Krishi Vigyan Kendra (1-2 sentences)
+When to visit the local Krishi Vigyan Kendra (1-2 sentences). If identification is
+uncertain, make this the PRIMARY recommendation, not a last resort.
 
 {_lang_instruction(language)}
 Keep it under 300 words. Be specific — name exact products, dosages, timings."""
@@ -814,6 +951,13 @@ Rainfall trend: {climate.get('rainfall_trend_per_year', '?')}mm/year | Temp tren
 
 MODEL PREDICTIONS (with SHAP — which factors drove each recommendation):
 {json.dumps(context['predictions'], indent=2)}
+
+NOTE ON "viability_is_estimated": when true, this crop has no real regional
+yield data for this state/season — its viability score is a neutral dataset-
+average estimate, not a measured regional fit. Do not claim strong regional
+suitability for such a crop; mention that regional yield data is unavailable
+for it and the recommendation rests more on soil/climate fit than proven
+local performance.
 {rag_section}
 
 Give your response in this EXACT structure with these headers:
@@ -861,6 +1005,11 @@ async def health():
         "models": {"disease": disease_model is not None, "crop": crop_model is not None},
         "gemini": GEMINI_AVAILABLE and bool(GEMINI_API_KEY),
         "rag": {"available": rag_status, "chunks": rag_chunks},
+        "ood_detection": {
+            "available": ood_centroid_matrix is not None,
+            "classes_covered": len(ood_centroid_names) if ood_centroid_names else 0,
+            "threshold": round(ood_threshold, 2) if ood_threshold else None,
+        },
         "languages": list(SUPPORTED_LANGUAGES.keys()),
     }
 
@@ -918,12 +1067,14 @@ async def disease_endpoint(
             logger.warning(f"CIBRC: banned pesticides in advisory: {safety_result['banned_found']}")
 
     top = prediction["top_prediction"]
+    ood = prediction.get("ood_check")
     return {
         "summary": {
             "crop": top["crop"],
             "disease": top["disease"] or "Healthy",
             "confidence": f"{top['confidence']*100:.0f}%",
             "status": top["status"],
+            "identification_uncertain": bool(ood and ood["is_out_of_distribution"]),
         },
         "advisory": advisory,
         "details": {
@@ -932,6 +1083,7 @@ async def disease_endpoint(
             "location": {"state": state, "district": geo.get("district")} if state else None,
             "alerts": alerts if alerts else None,
             "rag_grounded": bool(rag_context),
+            "ood_check": ood,
         },
         "language": SUPPORTED_LANGUAGES.get(language, "English"),
     }
