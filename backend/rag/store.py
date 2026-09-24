@@ -132,13 +132,31 @@ def search(query: str, crop: str = None, topic: str = None,
             include=["documents", "metadatas", "distances"],
         )
     except Exception as e:
-        # If filtered query fails (e.g., no docs match filter), try without filter
-        logger.warning(f"Filtered search failed ({e}), trying unfiltered")
-        results = collection.query(
-            query_embeddings=[query_embedding],
-            n_results=top_k,
-            include=["documents", "metadatas", "distances"],
-        )
+        # A combined filter ($and of crop+topic) can fail on some ChromaDB
+        # versions/collection states. Degrade gracefully — try crop alone
+        # (the most important constraint) before ever falling back to a
+        # fully unfiltered search. A silent unfiltered fallback previously
+        # sat here, which meant a "crop-filtered" query could silently
+        # search the ENTIRE corpus with zero warning beyond a log line —
+        # this is exactly what let Potato/Apple content leak into Tomato
+        # results despite the calling code explicitly requesting a filter.
+        logger.warning(f"Filtered search failed ({e}), retrying with crop-only filter")
+        crop_only_filter = {"crop": {"$eq": crop}} if crop and crop != "general" else None
+        try:
+            results = collection.query(
+                query_embeddings=[query_embedding],
+                n_results=min(top_k * 2, 20),
+                where=crop_only_filter,
+                include=["documents", "metadatas", "distances"],
+            )
+        except Exception as e2:
+            logger.error(
+                f"Crop-only filtered search ALSO failed ({e2}) — "
+                f"returning NO results rather than silently searching the "
+                f"full unfiltered corpus. Investigate ChromaDB where-clause "
+                f"compatibility."
+            )
+            return []
 
     if not results["ids"] or not results["ids"][0]:
         return []
@@ -150,14 +168,21 @@ def search(query: str, crop: str = None, topic: str = None,
         distance = results["distances"][0][i]
         text = results["documents"][0][i]
 
-        # Disease post-filter
+        # Disease post-filter — a chunk is relevant if EITHER its metadata
+        # tag matches OR the disease phrase appears in its own text.
+        # Previously: an empty tag list short-circuited the whole check
+        # (falsy `doc_diseases` skipped the condition entirely), so any
+        # untagged chunk passed automatically regardless of actual
+        # relevance — silently filling the result quota with irrelevant
+        # high-raw-score chunks before ever reaching a correctly-tagged
+        # one further down the ranking.
         if disease:
             doc_diseases = json.loads(meta.get("diseases", "[]"))
             disease_lower = disease.lower()
-            if doc_diseases and not any(disease_lower in d for d in doc_diseases):
-                # Check if disease name appears in the text itself
-                if disease_lower not in text.lower():
-                    continue
+            matches_tag = any(disease_lower in d for d in doc_diseases)
+            matches_text = disease_lower in text.lower()
+            if not (matches_tag or matches_text):
+                continue
 
         output.append({
             "id": doc_id,

@@ -4,6 +4,7 @@ Routes crop recommendation and disease detection queries
 to the right chunks with proper filtering.
 """
 
+import json
 import logging
 from .store import search
 
@@ -109,20 +110,30 @@ def retrieve_for_disease_advisory(crop: str, disease: str,
                                    top_k: int = 3) -> list[dict]:
     """
     Retrieve RAG context for disease detection advisory.
-    
-    Searches for:
-    1. Exact disease management (chemical + cultural control)
-    2. General disease/pest management for the crop
+
+    Crop is a HARD FILTER here — reverted from an earlier ranking-signal
+    experiment. That experiment was working around a chunk-tagging bug
+    (a disease name wrapped across two PDF lines, silently dropping half
+    the name during chunking) which has since been fixed at its actual
+    root in ingest.py. With that fixed, the disease-flow crop names
+    (from disease_label_map, e.g. "Tomato", "Potato") already match the
+    RAG corpus's crop tags exactly — there's no taxonomy drift to work
+    around here (unlike the crop-recommendation flow, which maps a
+    different naming convention via KAGGLE_TO_RAG_CROP). Loosening the
+    filter after the real fix was already in just let unrelated crops'
+    content (e.g. Potato's tuber-specific "late blight" text) outrank
+    the correct Tomato chunk. Hard filtering avoids that entirely.
     """
     all_results = []
 
-    # Query 1: Specific disease management
+    # Query 1: specific disease management for this exact crop
     q1 = f"{crop} {disease} management control treatment spray"
     results = search(q1, crop=crop, disease=disease,
-                     topic="disease_management", top_k=2)
+                     topic="disease_management", top_k=3)
     all_results.extend(results)
 
-    # If no exact disease match, broaden
+    # If the exact disease match is thin, broaden to general disease/pest
+    # management for this crop (still crop-filtered)
     if len(all_results) < 2:
         q2 = f"{crop} disease pest management IPM control"
         results = search(q2, crop=crop, topic="disease_management", top_k=2)
@@ -130,14 +141,15 @@ def retrieve_for_disease_advisory(crop: str, disease: str,
             if r["id"] not in {x["id"] for x in all_results}:
                 all_results.append(r)
 
-    # Query 3: Pest management (diseases often co-occur with pests)
+    # Query 3: prevention / cultural practice for this crop + disease
     q3 = f"{crop} {disease} prevention cultural practice"
     results = search(q3, crop=crop, topic="pest_management", top_k=1)
     for r in results:
         if r["id"] not in {x["id"] for x in all_results}:
             all_results.append(r)
 
-    # Deduplicate and sort
+    # Deduplicate and sort by raw similarity — no cross-crop boosting
+    # needed since the crop filter already guarantees relevance.
     seen_ids = set()
     deduped = []
     for r in all_results:

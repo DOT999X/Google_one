@@ -190,6 +190,20 @@ def detect_section_headers(text: str) -> list[tuple[int, str]]:
             pending_name = None
             continue
 
+        # Continuation of a wrapped disease/pest name — e.g. a PDF line
+        # break splits "Alternaria blight and" / "late blight" across two
+        # lines. If the pending candidate ends in a conjunction, the next
+        # short line is almost certainly its continuation, not a new name —
+        # merge it even though it starts lowercase (a real new candidate
+        # name wouldn't). Without this, the second half of the disease name
+        # (often the actually-relevant part, e.g. "late blight") silently
+        # vanishes from both the header and the disease-tagging step.
+        if (pending_name and pending_name.split()[-1].lower() in ("and", "or", "&", "-")
+                and len(stripped.split()) <= 6 and len(stripped) < 40
+                and not stripped.endswith(".")):
+            pending_name = f"{pending_name} {stripped}"
+            continue
+
         # Track a candidate pest/disease name line — short, capitalized,
         # not ending in a period — so the NEXT control label can inherit it.
         # This does not itself become a header/split point.

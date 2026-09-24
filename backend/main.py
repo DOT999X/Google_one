@@ -18,6 +18,7 @@ load_dotenv()
 
 import os
 import io
+import re
 import json
 import uuid
 import logging
@@ -32,7 +33,12 @@ from torchvision import transforms
 from torchvision.models import efficientnet_b3
 from PIL import Image
 import xgboost as xgb
-import shap
+try:
+    import shap
+    SHAP_AVAILABLE = True
+except ImportError:
+    SHAP_AVAILABLE = False
+    logging.warning("shap not available (import failed) — SHAP explainability disabled, crop predictions still work")
 import joblib
 import httpx
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form
@@ -184,9 +190,15 @@ async def load_models():
             crop_features = config["features"]
             shap_layout = config.get("shap_layout", "new")
         ep = os.path.join(MODEL_DIR, "shap_explainer.joblib")
-        if os.path.exists(ep):
-            crop_explainer = joblib.load(ep)
-            logger.info("SHAP explainer loaded")
+        if SHAP_AVAILABLE and os.path.exists(ep):
+            try:
+                crop_explainer = joblib.load(ep)
+                logger.info("SHAP explainer loaded")
+            except Exception as e:
+                logger.warning(f"SHAP explainer failed to load: {e} — continuing without it")
+                crop_explainer = None
+        elif not SHAP_AVAILABLE:
+            logger.warning("Skipping SHAP explainer load — shap module unavailable")
         logger.info(f"Crop model loaded: {len(crop_label_map)} classes, {len(crop_features)} features")
 
     # GCP
@@ -505,16 +517,39 @@ def _interpret_ndvi(ndvi):
     return "very dense/healthy vegetation"
 
 
-async def call_gemini(prompt: str) -> str:
+async def call_gemini(prompt: str, max_retries: int = 2) -> str:
+    """
+    Calls Gemini with automatic backoff on free-tier rate limits (429).
+    The free tier allows only 5 req/min per model — easy to hit during
+    active testing/development, so we retry once or twice with a short
+    wait rather than surfacing a raw quota error to the farmer.
+    """
     if not GEMINI_AVAILABLE or not GEMINI_API_KEY:
         return "Gemini advisory unavailable — API key not configured."
-    try:
-        model = genai.GenerativeModel(GEMINI_MODEL)
-        response = model.generate_content(prompt)
-        return response.text
-    except Exception as e:
-        logger.error(f"Gemini error: {e}")
-        return f"Advisory generation failed: {e}"
+
+    for attempt in range(max_retries + 1):
+        try:
+            model = genai.GenerativeModel(GEMINI_MODEL)
+            response = model.generate_content(prompt)
+            return response.text
+        except Exception as e:
+            err_str = str(e)
+            is_rate_limit = "429" in err_str or "quota" in err_str.lower()
+
+            if is_rate_limit and attempt < max_retries:
+                # Parse suggested retry_delay if present, else default backoff
+                wait_s = 15
+                match = re.search(r"retry_delay\s*\{\s*seconds:\s*(\d+)", err_str)
+                if match:
+                    wait_s = int(match.group(1)) + 2  # small buffer
+                logger.warning(f"Gemini rate limited (attempt {attempt+1}/{max_retries+1}), waiting {wait_s}s...")
+                await asyncio.sleep(wait_s)
+                continue
+
+            logger.error(f"Gemini error: {e}")
+            return f"Advisory generation failed: {e}"
+
+    return "Advisory generation failed: rate limit exceeded after retries."
 
 
 # ---------------------------------------------------------------------------
