@@ -818,10 +818,15 @@ def _lang_instruction(lang):
     name = SUPPORTED_LANGUAGES.get(lang, "English")
     if lang == "en":
         return "Respond in simple English that a farmer can understand."
-    return f"""LANGUAGE INSTRUCTION: You MUST respond ENTIRELY in {name}. 
-Every single word of your response must be in {name}. 
-Do not use any English words except for scientific/technical terms that have no {name} equivalent.
-Use simple, everyday {name} that a rural farmer would understand."""
+    return f"""LANGUAGE INSTRUCTION: Write all CONTENT (sentences, advice, explanations) in {name}.
+Use simple, everyday {name} that a rural farmer would understand.
+
+CRITICAL EXCEPTION — section headers must stay EXACTLY as given in English,
+not translated. The headers (e.g. **DIAGNOSIS**, **TOP RECOMMENDATIONS**)
+are used by the app to lay out the page and MUST appear byte-for-byte as
+specified, in English, in ALL CAPS, wrapped in **. Only the text that comes
+AFTER each header should be in {name}. If you translate a header, the app
+cannot display your response at all — the farmer would see nothing."""
 
 
 def build_disease_prompt(prediction, ndvi_data=None, alerts=None,
@@ -881,26 +886,32 @@ A farmer's {top['crop']} plant was diagnosed:
 - Disease: {top['disease'] or 'Healthy'} (Confidence: {top['confidence']*100:.0f}%)
 {ndvi}{alert_text}{ood_warning}{rag_section}
 
-Give your response in this EXACT structure with these headers:
+Give your response in this EXACT structure with these headers. Be BRIEF —
+a busy farmer reading this on a phone should grasp it in under a minute.
+Use short, plain sentences. No jargon, no filler, no repeating the disease
+name more than once per section. Every line must tell the farmer something
+they can act on or need to know — cut anything else.
 
 **DIAGNOSIS**
-What this disease is and how it affects the crop (2-3 sentences). If there is an
-uncertain-identification warning above, lead with that uncertainty instead of
-stating the diagnosis as fact.
+One or two short sentences: what it is, what it does to the plant. If
+identification is uncertain (see warning above), say so in the FIRST
+sentence, plainly — e.g. "This may not be [disease] — the photo doesn't
+clearly match a known pattern."
 
 **IMMEDIATE ACTION**
-Numbered steps the farmer should take right now (3-4 steps with specific chemicals and dosages).
-If identification is uncertain, frame these as "if this diagnosis is correct" rather than definite.
+2-3 short steps only, the ones that matter most right now. One line each:
+what to do, with the exact product and dosage. Skip minor steps.
+If uncertain, start with "If this is correct:" instead of stating it flatly.
 
 **PREVENTION**
-How to prevent this in future seasons (3-4 points)
+2-3 short bullet points, not paragraphs. Only the most useful ones.
 
 **WHEN TO GET HELP**
-When to visit the local Krishi Vigyan Kendra (1-2 sentences). If identification is
-uncertain, make this the PRIMARY recommendation, not a last resort.
+One line. If identification is uncertain, this is the main message —
+say clearly and simply: go show it to your local KVK before spraying anything.
 
 {_lang_instruction(language)}
-Keep it under 300 words. Be specific — name exact products, dosages, timings."""
+HARD LIMIT: under 130 words total. Short lines over long ones. No headers-within-headers, no sub-bullets."""
 
 
 def build_crop_prompt(context, climate, forecast, soil_source, soil_confidence,
@@ -960,28 +971,33 @@ for it and the recommendation rests more on soil/climate fit than proven
 local performance.
 {rag_section}
 
-Give your response in this EXACT structure with these headers:
+Give your response in this EXACT structure with these headers. Be BRIEF —
+a farmer reading this on a phone should grasp the key decision in under two
+minutes. Plain language, short lines, no jargon. Every sentence must be
+something the farmer can act on — cut background explanation and filler.
 
 **TOP RECOMMENDATIONS**
-For each of the top 3 crops: name, why it suits this location, and any risks based on which factor dominates (SHAP). If a crop depends heavily on rainfall and rainfall is declining, flag it.
+Just the #1 crop, in 2 short lines: name + the ONE main reason it fits.
+Mention crop #2 in a single line only if it's a genuinely close alternative.
+If a crop's regional data is estimated (not measured), say so in 4-5 words, not a paragraph.
 
 **RISK ASSESSMENT**
-Based on SHAP dominant factors + climate trends, what are the key risks? Suggest drought-tolerant or resilient alternatives if needed.
+1-2 lines max: the single biggest risk for the #1 crop, and what to do about it.
 
 **FERTILIZER PLAN**
-Based on current N/P/K values, specific fertilizer types and quantities per hectare.
+3 lines max — one per nutrient (N/P/K), each: product name + quantity per hectare. Nothing else.
 
 **CROP CALENDAR**
-For the #1 recommended crop, give a month-by-month timeline:
-- Land preparation → Sowing → Key growth stages → Fertilizer schedule → Harvest → Post-harvest
+5-6 short lines, one per key stage (prep, sowing, mid-season care, harvest) —
+month/timing + the one thing to do then. Not a detailed month-by-month essay.
 
 **THIS WEEK**
-Based on the 7-day forecast, what should the farmer do or avoid right now?
+1-2 lines: the one thing to do or avoid this week, based on the forecast.
 
-{"NOTE: Soil data confidence is " + soil_confidence + ". If low, tell the farmer to enter Soil Health Card values for better accuracy." if soil_confidence in ("low", "very low") else ""}
+{"NOTE: Soil data confidence is " + soil_confidence + ". If low, tell the farmer to enter Soil Health Card values for better accuracy, in one short line." if soil_confidence in ("low", "very low") else ""}
 
 {_lang_instruction(language)}
-Keep it under 600 words. Be specific with quantities, dates, product names."""
+HARD LIMIT: under 220 words total. Short lines over long ones. No sub-bullets."""
 
 
 # ---------------------------------------------------------------------------

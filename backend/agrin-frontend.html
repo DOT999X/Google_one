@@ -3,249 +3,302 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#16a34a">
+<meta name="theme-color" content="#4C7A3C">
 <title>AgriN — Smart Farming Advisory</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --green-50: #f0fdf4; --green-100: #dcfce7; --green-200: #bbf7d0;
-  --green-500: #22c55e; --green-600: #16a34a; --green-700: #15803d; --green-800: #166534;
-  --amber-50: #fffbeb; --amber-100: #fef3c7; --amber-500: #f59e0b; --amber-600: #d97706;
-  --red-50: #fef2f2; --red-500: #ef4444;
-  --blue-50: #eff6ff; --blue-500: #3b82f6; --blue-600: #2563eb;
-  --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db;
-  --gray-400: #9ca3af; --gray-500: #6b7280; --gray-600: #4b5563; --gray-700: #374151;
-  --gray-800: #1f2937; --gray-900: #111827;
-  --radius: 12px; --radius-sm: 8px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+  --ivory: #FBF7EF;
+  --ivory-warm: #F5EEE0;
+  --sky: #2C4870;
+  --sky-soft: #E7EEF6;
+  --leaf: #4C7A3C;
+  --leaf-light: #EAF2E3;
+  --leaf-deep: #365A29;
+  --gold: #D9A441;
+  --gold-soft: #FBF0DC;
+  --soil: #4A3B2C;
+  --soil-soft: #EFE7DA;
+  --clay: #C05621;
+  --clay-soft: #FBEAE0;
+  --ink: #2B2420;
+  --ink-soft: #6B5F52;
+  --line: #E4DACB;
+  --white: #FFFFFF;
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+  --shadow: 0 2px 12px rgba(74, 59, 44, 0.08);
+  --shadow-md: 0 8px 24px rgba(74, 59, 44, 0.12);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --green-50: #052e16; --green-100: #14532d; --green-200: #166534;
-    --green-500: #22c55e; --green-600: #16a34a; --green-700: #15803d; --green-800: #dcfce7;
-    --amber-50: #451a03; --amber-100: #78350f; --amber-500: #f59e0b; --amber-600: #fbbf24;
-    --red-50: #450a0a; --red-500: #f87171;
-    --blue-50: #1e3a5f; --blue-500: #60a5fa; --blue-600: #93bbfd;
-    --gray-50: #111827; --gray-100: #1f2937; --gray-200: #374151; --gray-300: #4b5563;
-    --gray-400: #6b7280; --gray-500: #9ca3af; --gray-600: #d1d5db; --gray-700: #e5e7eb;
-    --gray-800: #f3f4f6; --gray-900: #f9fafb;
-    --shadow: 0 1px 3px rgba(0,0,0,0.3); --shadow-md: 0 4px 6px rgba(0,0,0,0.3);
+    --ivory: #1C1812; --ivory-warm: #23201A;
+    --sky: #6E93C4; --sky-soft: #223047;
+    --leaf: #7BAE64; --leaf-light: #223321; --leaf-deep: #9FCB8B;
+    --gold: #E8B85C; --gold-soft: #332711;
+    --soil: #E7DCC9; --soil-soft: #2A2419;
+    --clay: #E0824C; --clay-soft: #35211A;
+    --ink: #F2ECE0; --ink-soft: #B3A794;
+    --line: #3A3327; --white: #262019;
+    --shadow: 0 2px 12px rgba(0,0,0,0.3); --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
   }
 }
 :root[data-theme="dark"] {
-  --green-50: #052e16; --green-100: #14532d; --green-200: #166534;
-  --green-500: #22c55e; --green-600: #16a34a; --green-700: #15803d; --green-800: #dcfce7;
-  --amber-50: #451a03; --amber-100: #78350f; --amber-500: #f59e0b; --amber-600: #fbbf24;
-  --red-50: #450a0a; --red-500: #f87171;
-  --blue-50: #1e3a5f; --blue-500: #60a5fa; --blue-600: #93bbfd;
-  --gray-50: #111827; --gray-100: #1f2937; --gray-200: #374151; --gray-300: #4b5563;
-  --gray-400: #6b7280; --gray-500: #9ca3af; --gray-600: #d1d5db; --gray-700: #e5e7eb;
-  --gray-800: #f3f4f6; --gray-900: #f9fafb;
-  --shadow: 0 1px 3px rgba(0,0,0,0.3); --shadow-md: 0 4px 6px rgba(0,0,0,0.3);
+  --ivory: #1C1812; --ivory-warm: #23201A;
+  --sky: #6E93C4; --sky-soft: #223047;
+  --leaf: #7BAE64; --leaf-light: #223321; --leaf-deep: #9FCB8B;
+  --gold: #E8B85C; --gold-soft: #332711;
+  --soil: #E7DCC9; --soil-soft: #2A2419;
+  --clay: #E0824C; --clay-soft: #35211A;
+  --ink: #F2ECE0; --ink-soft: #B3A794;
+  --line: #3A3327; --white: #262019;
+  --shadow: 0 2px 12px rgba(0,0,0,0.3); --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-padding-top: env(safe-area-inset-top, 0px); }
 body {
-  font-family: 'Inter', -apple-system, sans-serif;
-  background: var(--gray-50); color: var(--gray-800);
-  line-height: 1.6; -webkit-font-smoothing: antialiased;
+  font-family: 'Work Sans', -apple-system, sans-serif;
+  background: var(--ivory); color: var(--ink);
+  line-height: 1.55; -webkit-font-smoothing: antialiased;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+h1, h2, h3, .serif { font-family: 'Fraunces', Georgia, serif; }
 
-/* Header */
-.header {
-  background: linear-gradient(135deg, var(--green-700), var(--green-600));
-  color: white; padding: 20px 16px 16px; position: sticky; top: 0; z-index: 100;
+/* ---------- Hero — the one bold, memorable moment ---------- */
+.hero {
+  background: linear-gradient(160deg, var(--sky) 0%, var(--sky) 38%, var(--leaf-deep) 100%);
+  color: var(--ivory);
+  padding: 30px 20px 24px;
+  position: relative;
+  overflow: hidden;
 }
-.header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
-.header p { font-size: 13px; opacity: 0.85; margin-top: 2px; }
+.hero-blobs { position: absolute; inset: 0; overflow: hidden; }
+.blob {
+  position: absolute; border-radius: 50%; filter: blur(40px); opacity: 0.35;
+  animation: drift 18s ease-in-out infinite;
+}
+.blob-1 { width: 180px; height: 180px; background: var(--gold); top: -60px; right: -40px; animation-delay: 0s; }
+.blob-2 { width: 140px; height: 140px; background: var(--leaf); bottom: -50px; left: -30px; animation-delay: -6s; }
+.blob-3 { width: 110px; height: 110px; background: var(--ivory); top: 30%; left: 55%; opacity: 0.12; animation-delay: -11s; }
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(14px, -10px) scale(1.08); }
+}
+@media (prefers-reduced-motion: reduce) { .blob { animation: none; } }
+.hero::after {
+  content: '';
+  position: absolute; left: 0; right: 0; bottom: 0; height: 40%;
+  background: linear-gradient(180deg, transparent, rgba(217,164,65,0.16));
+  pointer-events: none;
+}
+.hero-top { display: flex; justify-content: space-between; align-items: flex-start; position: relative; z-index: 1; }
+.wordmark { display: flex; align-items: center; gap: 9px; }
+.wordmark .mark {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--gold), var(--leaf));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  flex-shrink: 0;
+}
+.hero h1 {
+  font-size: 27px; font-weight: 700; letter-spacing: -0.3px;
+  background: linear-gradient(135deg, #FFFFFF, var(--gold-soft));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hero .tagline { font-size: 13px; opacity: 0.85; margin-top: 2px; font-weight: 400; }
+.lang-select {
+  background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.28);
+  color: var(--ivory); border-radius: var(--radius-sm); padding: 7px 10px;
+  font-size: 13px; font-family: inherit; font-weight: 500;
+}
+.lang-select option { color: var(--ink); background: var(--white); }
 
-/* Tab bar */
-.tabs {
-  display: flex; background: var(--gray-100); border-radius: var(--radius);
-  padding: 4px; margin: 16px 16px 0; gap: 4px;
-}
+.tabs { display: flex; gap: 6px; margin: 20px 16px 0; position: relative; z-index: 1; }
 .tab {
-  flex: 1; padding: 10px 8px; border: none; border-radius: var(--radius-sm);
-  font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s;
-  background: transparent; color: var(--gray-500); font-family: inherit;
+  flex: 1; padding: 11px 8px; border: none; border-radius: var(--radius-md);
+  font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  background: rgba(255,255,255,0.12); color: var(--ivory); font-family: inherit;
 }
-.tab.active { background: white; color: var(--green-700); box-shadow: var(--shadow); }
+.tab.active { background: var(--ivory); color: var(--soil); box-shadow: var(--shadow-md); }
 
-/* Main content */
 .content { padding: 16px; max-width: 600px; margin: 0 auto; }
 
-/* Cards */
+/* ---------- Cards — subtle tinted sheen instead of flat grey ---------- */
 .card {
-  background: white; border-radius: var(--radius); padding: 20px;
-  box-shadow: var(--shadow); margin-bottom: 16px;
+  background: var(--white); border-radius: var(--radius-lg); padding: 20px;
+  box-shadow: var(--shadow); margin-bottom: 14px; border: 1px solid var(--line);
+  position: relative; overflow: hidden;
 }
-@media (prefers-color-scheme: dark) {
-  .card { background: var(--gray-100); }
-  .tab.active { background: var(--gray-200); }
+.card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 60px;
+  background: linear-gradient(180deg, var(--ivory-warm), transparent);
+  opacity: 0.5; pointer-events: none;
+}
+.card-title {
+  font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px; position: relative;
 }
 
-.card-title { font-size: 15px; font-weight: 600; color: var(--gray-800); margin-bottom: 12px; }
-
-/* Form elements */
 .field { margin-bottom: 14px; }
-.field label { display: block; font-size: 13px; font-weight: 500; color: var(--gray-600); margin-bottom: 5px; }
+.field label { display: block; font-size: 13px; font-weight: 500; color: var(--ink-soft); margin-bottom: 5px; }
 .field input, .field select {
-  width: 100%; padding: 10px 12px; border: 1.5px solid var(--gray-200);
+  width: 100%; padding: 11px 13px; border: 1.5px solid var(--line);
   border-radius: var(--radius-sm); font-size: 15px; font-family: inherit;
-  background: var(--gray-50); color: var(--gray-800); transition: border-color 0.2s;
+  background: var(--ivory-warm); color: var(--ink); transition: border-color 0.2s;
 }
-.field input:focus, .field select:focus { outline: none; border-color: var(--green-500); }
+.field input:focus, .field select:focus { outline: none; border-color: var(--leaf); }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-/* Buttons */
 .btn {
-  width: 100%; padding: 13px; border: none; border-radius: var(--radius-sm);
+  width: 100%; padding: 14px; border: none; border-radius: var(--radius-md);
   font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
-  transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: transform 0.15s, box-shadow 0.15s; position: relative; z-index: 1;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
 }
-.btn-primary { background: var(--green-600); color: white; }
-.btn-primary:hover { background: var(--green-700); }
+.btn-primary { background: linear-gradient(135deg, var(--leaf), var(--leaf-deep)); color: var(--white); }
+.btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: var(--shadow-md); }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-secondary { background: var(--gray-100); color: var(--gray-700); }
+.btn-secondary { background: var(--ivory-warm); color: var(--soil); }
 
-/* Upload area */
 .upload-area {
-  border: 2px dashed var(--gray-300); border-radius: var(--radius);
-  padding: 32px 16px; text-align: center; cursor: pointer;
-  transition: all 0.2s; position: relative; overflow: hidden;
+  border: 2px dashed var(--line); border-radius: var(--radius-lg);
+  padding: 30px 16px; text-align: center; cursor: pointer;
+  transition: all 0.2s; position: relative; overflow: hidden; background: var(--ivory-warm);
 }
-.upload-area:hover { border-color: var(--green-500); background: var(--green-50); }
-.upload-area.has-image { border-style: solid; border-color: var(--green-500); padding: 8px; }
-.upload-area img { max-width: 100%; max-height: 200px; border-radius: var(--radius-sm); }
+.upload-area:hover { border-color: var(--leaf); background: var(--leaf-light); }
+.upload-area.has-image { border-style: solid; border-color: var(--leaf); padding: 8px; background: var(--white); }
+.upload-area img { max-width: 100%; max-height: 220px; border-radius: var(--radius-md); }
 .upload-area input { display: none; }
-.upload-icon { font-size: 36px; margin-bottom: 8px; }
-.upload-text { font-size: 14px; color: var(--gray-500); }
+.upload-icon { font-size: 34px; margin-bottom: 8px; }
+.upload-text { font-size: 14px; color: var(--ink-soft); }
 
-/* Loader */
-.loader {
-  display: flex; flex-direction: column; align-items: center;
-  padding: 40px 20px; gap: 16px;
-}
+.loader { display: flex; flex-direction: column; align-items: center; padding: 44px 20px; gap: 14px; }
 .spinner {
-  width: 40px; height: 40px; border: 3px solid var(--gray-200);
-  border-top-color: var(--green-600); border-radius: 50%;
+  width: 38px; height: 38px; border: 3px solid var(--line);
+  border-top-color: var(--leaf); border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-.loader-text { font-size: 14px; color: var(--gray-500); text-align: center; }
+.loader-text { font-size: 13.5px; color: var(--ink-soft); text-align: center; }
 
-/* Results */
 .summary-card {
-  background: var(--green-50); border-radius: var(--radius); padding: 16px;
-  margin-bottom: 16px; border-left: 4px solid var(--green-600);
+  border-radius: var(--radius-lg); padding: 20px; margin-bottom: 14px;
+  color: var(--white); position: relative; overflow: hidden;
 }
-.summary-title { font-size: 18px; font-weight: 700; color: var(--green-800); }
-.summary-subtitle { font-size: 13px; color: var(--gray-500); margin-top: 2px; }
-.summary-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-.badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;
-}
-.badge-green { background: var(--green-100); color: var(--green-700); }
-.badge-amber { background: var(--amber-100); color: var(--amber-600); }
-.badge-blue { background: var(--blue-50); color: var(--blue-600); }
+.summary-card.ok { background: linear-gradient(135deg, var(--leaf-deep), var(--leaf)); }
+.summary-card.warn { background: linear-gradient(135deg, #8A4A16, var(--clay)); }
+.summary-title { font-size: 21px; font-weight: 600; font-family: 'Fraunces', serif; }
+.summary-subtitle { font-size: 13.5px; opacity: 0.88; margin-top: 4px; }
 
-/* Advisory sections */
-.advisory { margin-top: 16px; }
-.advisory-section {
-  background: white; border-radius: var(--radius); padding: 16px;
-  margin-bottom: 12px; box-shadow: var(--shadow);
+.uncertain-banner {
+  background: var(--clay-soft); border: 1.5px solid var(--clay);
+  border-radius: var(--radius-lg); padding: 16px 18px; margin-bottom: 14px;
+  display: flex; gap: 12px; align-items: flex-start;
 }
-@media (prefers-color-scheme: dark) { .advisory-section { background: var(--gray-100); } }
-.advisory-section h3 {
-  font-size: 14px; font-weight: 600; color: var(--green-700);
-  margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
-}
-.advisory-section p, .advisory-section li {
-  font-size: 14px; color: var(--gray-700); line-height: 1.7;
-}
-.advisory-section ul, .advisory-section ol {
-  padding-left: 18px; margin-top: 6px;
-}
-.advisory-section li { margin-bottom: 4px; }
-.advisory-section strong { color: var(--gray-800); }
+.uncertain-banner .icon { font-size: 22px; line-height: 1; flex-shrink: 0; }
+.uncertain-banner .text { font-size: 13.5px; color: var(--soil); line-height: 1.5; }
+.uncertain-banner .text strong { color: var(--clay); }
 
-/* Data source pills */
-.data-sources {
-  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; padding-top: 12px;
-  border-top: 1px solid var(--gray-200);
-}
-.source-pill {
-  font-size: 11px; padding: 3px 8px; border-radius: 12px;
-  background: var(--gray-100); color: var(--gray-500);
-}
-
-/* Confidence indicator */
-.confidence-bar { margin-top: 12px; }
-.confidence-label { font-size: 12px; color: var(--gray-500); margin-bottom: 4px; }
-.confidence-track { height: 6px; background: var(--gray-200); border-radius: 3px; overflow: hidden; }
-.confidence-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
-.confidence-high { background: var(--green-500); }
-.confidence-moderate { background: var(--amber-500); }
-.confidence-low { background: var(--red-500); }
-
-/* Predictions table */
-.predictions { margin-top: 16px; }
+.predictions { margin-top: 4px; }
 .pred-card {
-  display: flex; align-items: center; gap: 12px; padding: 12px;
-  background: white; border-radius: var(--radius-sm); margin-bottom: 8px;
-  box-shadow: var(--shadow);
+  display: flex; align-items: center; gap: 12px; padding: 13px 14px;
+  background: var(--white); border-radius: var(--radius-md); margin-bottom: 8px;
+  border: 1px solid var(--line);
 }
-@media (prefers-color-scheme: dark) { .pred-card { background: var(--gray-100); } }
+.pred-card.rank-1 { border-color: var(--gold); background: var(--gold-soft); }
 .pred-rank {
-  width: 28px; height: 28px; border-radius: 50%; display: flex;
+  width: 30px; height: 30px; border-radius: 50%; display: flex;
   align-items: center; justify-content: center; font-size: 13px;
-  font-weight: 700; flex-shrink: 0;
+  font-weight: 700; flex-shrink: 0; font-family: 'Fraunces', serif;
 }
-.pred-rank-1 { background: var(--green-100); color: var(--green-700); }
-.pred-rank-2 { background: var(--amber-100); color: var(--amber-600); }
-.pred-rank-3 { background: var(--gray-200); color: var(--gray-600); }
-.pred-name { font-size: 15px; font-weight: 600; color: var(--gray-800); text-transform: capitalize; }
-.pred-detail { font-size: 12px; color: var(--gray-500); }
-.pred-score { margin-left: auto; font-size: 14px; font-weight: 600; color: var(--green-700); }
-
-/* Collapsible */
-.collapsible-header {
-  display: flex; justify-content: space-between; align-items: center;
-  cursor: pointer; padding: 4px 0; user-select: none;
+.pred-rank-1 { background: var(--gold); color: var(--white); }
+.pred-rank-2 { background: var(--leaf-light); color: var(--leaf-deep); }
+.pred-rank-3 { background: var(--soil-soft); color: var(--soil); }
+.pred-name { font-size: 15px; font-weight: 600; color: var(--ink); text-transform: capitalize; }
+.pred-detail { font-size: 12px; color: var(--ink-soft); margin-top: 1px; }
+.pred-score { margin-left: auto; font-size: 15px; font-weight: 700; color: var(--leaf-deep); font-family: 'Fraunces', serif; }
+.est-tag {
+  font-size: 10.5px; padding: 2px 7px; border-radius: 20px;
+  background: var(--sky-soft); color: var(--sky); margin-left: 6px; font-weight: 600;
 }
-.collapsible-header .arrow { transition: transform 0.2s; font-size: 12px; color: var(--gray-400); }
-.collapsible-header .arrow.open { transform: rotate(180deg); }
-.collapsible-body { overflow: hidden; transition: max-height 0.3s ease; }
 
-/* Error */
+/* ---------- Advisory: collapsible for a compact, single-page feel ---------- */
+.advisory { margin-top: 14px; }
+.advisory-section {
+  border-radius: var(--radius-lg); box-shadow: var(--shadow);
+  border-left: 4px solid var(--line); background: var(--white);
+  margin-bottom: 10px; overflow: hidden; position: relative;
+}
+.advisory-section.tone-diagnosis { border-left-color: var(--clay); }
+.advisory-section.tone-action { border-left-color: var(--gold); }
+.advisory-section.tone-prevention { border-left-color: var(--leaf); }
+.advisory-section.tone-help { border-left-color: var(--sky); }
+.advisory-section.tone-top { border-left-color: var(--gold); }
+.advisory-section.tone-risk { border-left-color: var(--clay); }
+.advisory-section.tone-fertilizer { border-left-color: var(--soil); }
+.advisory-section.tone-calendar { border-left-color: var(--sky); }
+.advisory-section.tone-week { border-left-color: var(--leaf); }
+.sec-header {
+  padding: 16px 18px; cursor: pointer; user-select: none;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.sec-header h3 {
+  font-size: 13.5px; font-weight: 600; color: var(--ink);
+  display: flex; align-items: center; gap: 7px; flex: 1;
+}
+.sec-arrow { font-size: 11px; color: var(--ink-soft); transition: transform 0.2s; flex-shrink: 0; }
+.sec-arrow.open { transform: rotate(180deg); }
+.sec-body { padding: 0 18px 16px; }
+.advisory-section p, .advisory-section li { font-size: 14.5px; color: var(--ink); line-height: 1.6; }
+.advisory-section ul, .advisory-section ol { padding-left: 18px; margin-top: 4px; }
+.advisory-section li { margin-bottom: 5px; }
+.advisory-section strong { color: var(--leaf-deep); }
+
+.details-toggle {
+  display: flex; align-items: center; gap: 6px; justify-content: center;
+  padding: 12px; font-size: 13px; color: var(--ink-soft); cursor: pointer;
+  font-weight: 500; user-select: none;
+}
+.details-toggle .arrow { transition: transform 0.2s; font-size: 11px; }
+.details-toggle .arrow.open { transform: rotate(180deg); }
+.data-sources { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+.source-pill {
+  font-size: 11px; padding: 4px 9px; border-radius: 20px;
+  background: var(--ivory-warm); color: var(--ink-soft); border: 1px solid var(--line);
+}
+
 .error-card {
-  background: var(--red-50); border-radius: var(--radius); padding: 16px;
-  border-left: 4px solid var(--red-500); margin-bottom: 16px;
+  background: var(--clay-soft); border-radius: var(--radius-lg); padding: 16px;
+  border-left: 4px solid var(--clay); margin-bottom: 14px;
 }
-.error-card p { font-size: 14px; color: var(--red-500); }
+.error-card p { font-size: 14px; color: var(--clay); }
 
-/* Optional soil toggle */
 .toggle-row {
   display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
-  cursor: pointer; font-size: 13px; color: var(--gray-600);
+  cursor: pointer; font-size: 13.5px; color: var(--ink-soft); font-weight: 500;
 }
 .toggle-switch {
-  width: 36px; height: 20px; border-radius: 10px; background: var(--gray-300);
+  width: 38px; height: 21px; border-radius: 11px; background: var(--line);
   position: relative; transition: background 0.2s; flex-shrink: 0;
 }
-.toggle-switch.on { background: var(--green-500); }
+.toggle-switch.on { background: var(--leaf); }
 .toggle-switch::after {
   content: ''; position: absolute; top: 2px; left: 2px;
-  width: 16px; height: 16px; border-radius: 50%; background: white;
+  width: 17px; height: 17px; border-radius: 50%; background: var(--white);
   transition: transform 0.2s; box-shadow: var(--shadow);
 }
-.toggle-switch.on::after { transform: translateX(16px); }
-.soil-fields { margin-top: 12px; }
+.toggle-switch.on::after { transform: translateX(17px); }
+.soil-fields { margin-top: 12px; animation: reveal 0.25s ease; }
+@keyframes reveal { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+.grounded-tag {
+  display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px;
+  padding: 4px 10px; border-radius: 20px; background: var(--leaf-light);
+  color: var(--leaf-deep); font-weight: 600; margin-top: 10px;
+}
 </style>
 </head>
 <body>
@@ -267,141 +320,458 @@ const LANGUAGES = {
   gu: "ગુજરાતી", pa: "ਪੰਜਾਬੀ", or: "ଓଡ଼ିଆ",
 };
 
-const SECTION_ICONS = {
-  "TOP RECOMMENDATIONS": "🌾",
-  "RISK ASSESSMENT": "⚠️",
-  "FERTILIZER PLAN": "🧪",
-  "CROP CALENDAR": "📅",
-  "THIS WEEK": "🌤️",
-  "DIAGNOSIS": "🔍",
-  "IMMEDIATE ACTION": "🚨",
-  "PREVENTION": "🛡️",
-  "WHEN TO GET HELP": "🏥",
+// The BACKEND section header keys (**TOP RECOMMENDATIONS**, etc.) stay in
+// English always — that's a deliberate parsing contract with main.py, not
+// a bug. What's localized here is purely the DISPLAY label shown to the
+// farmer for each of those fixed keys, plus the handful of UI strings that
+// live only in this file and were never passed through Gemini's own
+// translation (buttons, placeholders, the OOD warning banner).
+const T = {
+  en: {
+    tagline: "Your field, understood",
+    tabCrop: "Crop Advisory", tabDisease: "Disease Scan",
+    whereField: "Where's your field?", lat: "Latitude", lon: "Longitude",
+    useLocation: "Use my current location", locErr: "Couldn't get your location — enter it manually",
+    noLoc: "Location not supported on this device",
+    haveSoilCard: "I have my Soil Health Card values",
+    getRecommendation: "Get My Recommendation", thinking: "Thinking...",
+    readingSoil: "Reading your soil, climate, and season...",
+    enterLoc: "Please enter your location (or tap 'Use my location')",
+    showLeaf: "Show me the leaf", tapPhoto: "Tap to take a photo or choose one",
+    optionalLoc: "Location (optional, for local context)",
+    scanDisease: "Scan for Disease", diagnosing: "Diagnosing...",
+    lookingClosely: "Looking closely at the leaf pattern...",
+    uploadFirst: "Please upload a photo of the affected leaf",
+    otherPoss: "Other possibilities", showData: "Show data sources", hideData: "Hide data sources",
+    showTech: "Show technical details", hideTech: "Hide technical details",
+    grounded: "Grounded in official crop guidelines",
+    uncertainTitle: "This identification isn't clear.",
+    uncertainBody: "The photo doesn't closely match patterns we know well — please confirm with your local KVK before treating, especially before spending money on chemicals.",
+    ndviLabel: "Vegetation index (NDVI)", matchConf: "Match confidence",
+    sections: {
+      "TOP RECOMMENDATIONS": "Top Recommendations", "RISK ASSESSMENT": "Risk Assessment",
+      "FERTILIZER PLAN": "Fertilizer Plan", "CROP CALENDAR": "Crop Calendar", "THIS WEEK": "This Week",
+      "DIAGNOSIS": "Diagnosis", "IMMEDIATE ACTION": "Immediate Action",
+      "PREVENTION": "Prevention", "WHEN TO GET HELP": "When to Get Help",
+    },
+  },
+  hi: {
+    tagline: "आपका खेत, समझा गया",
+    tabCrop: "फ़सल सलाह", tabDisease: "रोग जांच",
+    whereField: "आपका खेत कहाँ है?", lat: "अक्षांश", lon: "देशांतर",
+    useLocation: "मेरा स्थान उपयोग करें", locErr: "स्थान नहीं मिला — खुद दर्ज करें",
+    noLoc: "इस डिवाइस पर स्थान सुविधा उपलब्ध नहीं",
+    haveSoilCard: "मेरे पास मृदा स्वास्थ्य कार्ड के आंकड़े हैं",
+    getRecommendation: "सलाह प्राप्त करें", thinking: "सोच रहे हैं...",
+    readingSoil: "आपकी मिट्टी, जलवायु और मौसम पढ़ रहे हैं...",
+    enterLoc: "कृपया अपना स्थान दर्ज करें",
+    showLeaf: "पत्ती दिखाएं", tapPhoto: "फोटो लें या चुनें",
+    optionalLoc: "स्थान (वैकल्पिक)",
+    scanDisease: "रोग जांचें", diagnosing: "जांच हो रही है...",
+    lookingClosely: "पत्ती के पैटर्न को ध्यान से देख रहे हैं...",
+    uploadFirst: "कृपया प्रभावित पत्ती की फोटो अपलोड करें",
+    otherPoss: "अन्य संभावनाएं", showData: "डेटा स्रोत दिखाएं", hideData: "डेटा स्रोत छुपाएं",
+    showTech: "तकनीकी विवरण दिखाएं", hideTech: "तकनीकी विवरण छुपाएं",
+    grounded: "आधिकारिक फ़सल दिशानिर्देशों पर आधारित",
+    uncertainTitle: "यह पहचान स्पष्ट नहीं है।",
+    uncertainBody: "फोटो हमारे जाने-पहचाने पैटर्न से मेल नहीं खाती — इलाज से पहले अपने स्थानीय KVK से पुष्टि करें, खासकर दवा पर पैसा खर्च करने से पहले।",
+    ndviLabel: "वनस्पति सूचकांक (NDVI)", matchConf: "मिलान विश्वास",
+    sections: {
+      "TOP RECOMMENDATIONS": "मुख्य सिफारिशें", "RISK ASSESSMENT": "जोखिम आकलन",
+      "FERTILIZER PLAN": "उर्वरक योजना", "CROP CALENDAR": "फ़सल कैलेंडर", "THIS WEEK": "इस सप्ताह",
+      "DIAGNOSIS": "निदान", "IMMEDIATE ACTION": "तुरंत करें",
+      "PREVENTION": "रोकथाम", "WHEN TO GET HELP": "मदद कब लें",
+    },
+  },
+  ta: {
+    tagline: "உங்கள் வயல், புரிந்துகொள்ளப்பட்டது",
+    tabCrop: "பயிர் ஆலோசனை", tabDisease: "நோய் ஸ்கேன்",
+    whereField: "உங்கள் வயல் எங்கே?", lat: "அட்சரேகை", lon: "தீர்க்கரேகை",
+    useLocation: "எனது இருப்பிடத்தைப் பயன்படுத்து", locErr: "இருப்பிடம் கிடைக்கவில்லை — கைமுறையாக உள்ளிடவும்",
+    noLoc: "இந்த சாதனத்தில் இருப்பிடம் ஆதரிக்கப்படவில்லை",
+    haveSoilCard: "எனக்கு மண் வள அட்டை தரவு உள்ளது",
+    getRecommendation: "பரிந்துரை பெறவும்", thinking: "யோசிக்கிறது...",
+    readingSoil: "மண், காலநிலை, பருவத்தை படிக்கிறது...",
+    enterLoc: "தயவுசெய்து உங்கள் இருப்பிடத்தை உள்ளிடவும்",
+    showLeaf: "இலையைக் காட்டுங்கள்", tapPhoto: "புகைப்படம் எடுக்க அல்லது தேர்வு செய்ய தட்டவும்",
+    optionalLoc: "இருப்பிடம் (விருப்பம்)",
+    scanDisease: "நோய் ஸ்கேன் செய்யவும்", diagnosing: "கண்டறிகிறது...",
+    lookingClosely: "இலை வடிவத்தை உன்னிப்பாக பார்க்கிறது...",
+    uploadFirst: "பாதிக்கப்பட்ட இலையின் புகைப்படத்தை பதிவேற்றவும்",
+    otherPoss: "மற்ற சாத்தியங்கள்", showData: "தரவு ஆதாரங்களைக் காட்டு", hideData: "தரவு ஆதாரங்களை மறை",
+    showTech: "தொழில்நுட்ப விவரங்களைக் காட்டு", hideTech: "தொழில்நுட்ப விவரங்களை மறை",
+    grounded: "அதிகாரப்பூர்வ பயிர் வழிகாட்டுதல்களை அடிப்படையாகக் கொண்டது",
+    uncertainTitle: "இந்த அடையாளம் தெளிவாக இல்லை.",
+    uncertainBody: "இந்த புகைப்படம் நமக்குத் தெரிந்த பேட்டர்னுடன் பொருந்தவில்லை — மருந்து செலவழிப்பதற்கு முன் உங்கள் உள்ளூர் KVK-வில் உறுதிசெய்யவும்.",
+    ndviLabel: "தாவர குறியீடு (NDVI)", matchConf: "பொருத்த நம்பகத்தன்மை",
+    sections: {
+      "TOP RECOMMENDATIONS": "முதன்மை பரிந்துரைகள்", "RISK ASSESSMENT": "அபாய மதிப்பீடு",
+      "FERTILIZER PLAN": "உர திட்டம்", "CROP CALENDAR": "பயிர் கால அட்டவணை", "THIS WEEK": "இந்த வாரம்",
+      "DIAGNOSIS": "நோய் கண்டறிதல்", "IMMEDIATE ACTION": "உடனடி நடவடிக்கை",
+      "PREVENTION": "தடுப்பு", "WHEN TO GET HELP": "எப்போது உதவி பெறுவது",
+    },
+  },
+  te: {
+    tagline: "మీ పొలం, అర్థమైంది",
+    tabCrop: "పంట సలహా", tabDisease: "వ్యాధి స్కాన్",
+    whereField: "మీ పొలం ఎక్కడ?", lat: "అక్షాంశం", lon: "రేఖాంశం",
+    useLocation: "నా స్థానాన్ని ఉపయోగించు", locErr: "స్థానం దొరకలేదు — మాన్యువల్‌గా నమోదు చేయండి",
+    noLoc: "ఈ పరికరంలో స్థాన సేవ అందుబాటులో లేదు",
+    haveSoilCard: "నా వద్ద మృదా ఆరోగ్య కార్డు వివరాలు ఉన్నాయి",
+    getRecommendation: "సిఫార్సు పొందండి", thinking: "ఆలోచిస్తోంది...",
+    readingSoil: "మీ నేల, వాతావరణం, సీజన్ చదువుతోంది...",
+    enterLoc: "దయచేసి మీ స్థానాన్ని నమోదు చేయండి",
+    showLeaf: "ఆకు చూపించండి", tapPhoto: "ఫోటో తీయడానికి లేదా ఎంచుకోవడానికి నొక్కండి",
+    optionalLoc: "స్థానం (ఐచ్ఛికం)",
+    scanDisease: "వ్యాధి స్కాన్ చేయండి", diagnosing: "నిర్ధారిస్తోంది...",
+    lookingClosely: "ఆకు నమూనాను నిశితంగా చూస్తోంది...",
+    uploadFirst: "దయచేసి ప్రభావిత ఆకు ఫోటోను అప్‌లోడ్ చేయండి",
+    otherPoss: "ఇతర అవకాశాలు", showData: "డేటా మూలాలను చూపించు", hideData: "డేటా మూలాలను దాచు",
+    showTech: "సాంకేతిక వివరాలను చూపించు", hideTech: "సాంకేతిక వివరాలను దాచు",
+    grounded: "అధికారిక పంట మార్గదర్శకాల ఆధారంగా",
+    uncertainTitle: "ఈ గుర్తింపు స్పష్టంగా లేదు.",
+    uncertainBody: "ఫోటో మనకు తెలిసిన నమూనాలతో సరిపోలడం లేదు — మందులపై డబ్బు ఖర్చు చేయడానికి ముందు మీ స్థానిక KVKలో నిర్ధారించుకోండి.",
+    ndviLabel: "వృక్ష సూచిక (NDVI)", matchConf: "సరిపోలిక నమ్మకం",
+    sections: {
+      "TOP RECOMMENDATIONS": "ముఖ్య సిఫార్సులు", "RISK ASSESSMENT": "ప్రమాద అంచనా",
+      "FERTILIZER PLAN": "ఎరువుల ప్రణాళిక", "CROP CALENDAR": "పంట క్యాలెండర్", "THIS WEEK": "ఈ వారం",
+      "DIAGNOSIS": "నిర్ధారణ", "IMMEDIATE ACTION": "తక్షణ చర్య",
+      "PREVENTION": "నివారణ", "WHEN TO GET HELP": "సహాయం ఎప్పుడు తీసుకోవాలి",
+    },
+  },
+  kn: {
+    tagline: "ನಿಮ್ಮ ಹೊಲ, ಅರ್ಥವಾಗಿದೆ",
+    tabCrop: "ಬೆಳೆ ಸಲಹೆ", tabDisease: "ರೋಗ ಸ್ಕ್ಯಾನ್",
+    whereField: "ನಿಮ್ಮ ಹೊಲ ಎಲ್ಲಿದೆ?", lat: "ಅಕ್ಷಾಂಶ", lon: "ರೇಖಾಂಶ",
+    useLocation: "ನನ್ನ ಸ್ಥಳ ಬಳಸಿ", locErr: "ಸ್ಥಳ ಸಿಗಲಿಲ್ಲ — ಸ್ವತಃ ನಮೂದಿಸಿ",
+    noLoc: "ಈ ಸಾಧನದಲ್ಲಿ ಸ್ಥಳ ಸೇವೆ ಲಭ್ಯವಿಲ್ಲ",
+    haveSoilCard: "ನನ್ನ ಬಳಿ ಮಣ್ಣು ಆರೋಗ್ಯ ಕಾರ್ಡ್ ಮೌಲ್ಯಗಳಿವೆ",
+    getRecommendation: "ಶಿಫಾರಸು ಪಡೆಯಿರಿ", thinking: "ಯೋಚಿಸುತ್ತಿದೆ...",
+    readingSoil: "ನಿಮ್ಮ ಮಣ್ಣು, ಹವಾಮಾನ, ಋತು ಓದುತ್ತಿದೆ...",
+    enterLoc: "ದಯವಿಟ್ಟು ನಿಮ್ಮ ಸ್ಥಳ ನಮೂದಿಸಿ",
+    showLeaf: "ಎಲೆ ತೋರಿಸಿ", tapPhoto: "ಫೋಟೋ ತೆಗೆಯಲು ಅಥವಾ ಆಯ್ಕೆ ಮಾಡಲು ಟ್ಯಾಪ್ ಮಾಡಿ",
+    optionalLoc: "ಸ್ಥಳ (ಐಚ್ಛಿಕ)",
+    scanDisease: "ರೋಗ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ", diagnosing: "ಪತ್ತೆಹಚ್ಚುತ್ತಿದೆ...",
+    lookingClosely: "ಎಲೆಯ ಮಾದರಿಯನ್ನು ಸೂಕ್ಷ್ಮವಾಗಿ ನೋಡುತ್ತಿದೆ...",
+    uploadFirst: "ದಯವಿಟ್ಟು ಬಾಧಿತ ಎಲೆಯ ಫೋಟೋ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ",
+    otherPoss: "ಇತರ ಸಾಧ್ಯತೆಗಳು", showData: "ಡೇಟಾ ಮೂಲಗಳನ್ನು ತೋರಿಸಿ", hideData: "ಡೇಟಾ ಮೂಲಗಳನ್ನು ಮರೆಮಾಡಿ",
+    showTech: "ತಾಂತ್ರಿಕ ವಿವರಗಳನ್ನು ತೋರಿಸಿ", hideTech: "ತಾಂತ್ರಿಕ ವಿವರಗಳನ್ನು ಮರೆಮಾಡಿ",
+    grounded: "ಅಧಿಕೃತ ಬೆಳೆ ಮಾರ್ಗಸೂಚಿಗಳ ಆಧಾರದ ಮೇಲೆ",
+    uncertainTitle: "ಈ ಗುರುತಿಸುವಿಕೆ ಸ್ಪಷ್ಟವಾಗಿಲ್ಲ.",
+    uncertainBody: "ಫೋಟೋ ನಮಗೆ ತಿಳಿದಿರುವ ಮಾದರಿಗಳಿಗೆ ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ — ಔಷಧಿಗೆ ಹಣ ಖರ್ಚು ಮಾಡುವ ಮೊದಲು ನಿಮ್ಮ ಸ್ಥಳೀಯ KVK ಯಲ್ಲಿ ದೃಢಪಡಿಸಿಕೊಳ್ಳಿ.",
+    ndviLabel: "ಸಸ್ಯ ಸೂಚ್ಯಂಕ (NDVI)", matchConf: "ಹೊಂದಾಣಿಕೆ ವಿಶ್ವಾಸ",
+    sections: {
+      "TOP RECOMMENDATIONS": "ಪ್ರಮುಖ ಶಿಫಾರಸುಗಳು", "RISK ASSESSMENT": "ಅಪಾಯ ಮೌಲ್ಯಮಾಪನ",
+      "FERTILIZER PLAN": "ಗೊಬ್ಬರ ಯೋಜನೆ", "CROP CALENDAR": "ಬೆಳೆ ಕ್ಯಾಲೆಂಡರ್", "THIS WEEK": "ಈ ವಾರ",
+      "DIAGNOSIS": "ರೋಗನಿರ್ಣಯ", "IMMEDIATE ACTION": "ತಕ್ಷಣದ ಕ್ರಮ",
+      "PREVENTION": "ತಡೆಗಟ್ಟುವಿಕೆ", "WHEN TO GET HELP": "ಸಹಾಯ ಯಾವಾಗ ಪಡೆಯಬೇಕು",
+    },
+  },
+  ml: {
+    tagline: "നിങ്ങളുടെ വയൽ, മനസ്സിലാക്കി",
+    tabCrop: "വിള ഉപദേശം", tabDisease: "രോഗ സ്കാൻ",
+    whereField: "നിങ്ങളുടെ വയൽ എവിടെയാണ്?", lat: "അക്ഷാംശം", lon: "രേഖാംശം",
+    useLocation: "എന്റെ സ്ഥാനം ഉപയോഗിക്കുക", locErr: "സ്ഥാനം ലഭിച്ചില്ല — സ്വയം നൽകുക",
+    noLoc: "ഈ ഉപകരണത്തിൽ സ്ഥാന സേവനം ലഭ്യമല്ല",
+    haveSoilCard: "എന്റെ പക്കൽ മണ്ണ് ആരോഗ്യ കാർഡ് വിവരങ്ങളുണ്ട്",
+    getRecommendation: "ശുപാർശ നേടുക", thinking: "ചിന്തിക്കുന്നു...",
+    readingSoil: "മണ്ണ്, കാലാവസ്ഥ, സീസൺ വായിക്കുന്നു...",
+    enterLoc: "ദയവായി നിങ്ങളുടെ സ്ഥാനം നൽകുക",
+    showLeaf: "ഇല കാണിക്കുക", tapPhoto: "ഫോട്ടോ എടുക്കാൻ അല്ലെങ്കിൽ തിരഞ്ഞെടുക്കാൻ ടാപ്പ് ചെയ്യുക",
+    optionalLoc: "സ്ഥാനം (ഐച്ഛികം)",
+    scanDisease: "രോഗം സ്കാൻ ചെയ്യുക", diagnosing: "കണ്ടെത്തുന്നു...",
+    lookingClosely: "ഇലയുടെ പാറ്റേൺ സൂക്ഷ്മമായി നോക്കുന്നു...",
+    uploadFirst: "ബാധിച്ച ഇലയുടെ ഫോട്ടോ അപ്‌ലോഡ് ചെയ്യുക",
+    otherPoss: "മറ്റ് സാധ്യതകൾ", showData: "ഡാറ്റാ സ്രോതസ്സുകൾ കാണിക്കുക", hideData: "ഡാറ്റാ സ്രോതസ്സുകൾ മറയ്ക്കുക",
+    showTech: "സാങ്കേതിക വിവരങ്ങൾ കാണിക്കുക", hideTech: "സാങ്കേതിക വിവരങ്ങൾ മറയ്ക്കുക",
+    grounded: "ഔദ്യോഗിക വിള മാർഗ്ഗനിർദ്ദേശങ്ങളെ അടിസ്ഥാനമാക്കി",
+    uncertainTitle: "ഈ തിരിച്ചറിയൽ വ്യക്തമല്ല.",
+    uncertainBody: "ഫോട്ടോ നമുക്ക് അറിയാവുന്ന പാറ്റേണുകളുമായി പൊരുത്തപ്പെടുന്നില്ല — മരുന്നിന് പണം ചെലവഴിക്കുന്നതിന് മുമ്പ് നിങ്ങളുടെ പ്രാദേശിക KVK-യിൽ സ്ഥിരീകരിക്കുക.",
+    ndviLabel: "സസ്യ സൂചിക (NDVI)", matchConf: "പൊരുത്ത വിശ്വാസ്യത",
+    sections: {
+      "TOP RECOMMENDATIONS": "പ്രധാന ശുപാർശകൾ", "RISK ASSESSMENT": "അപകടസാധ്യത വിലയിരുത്തൽ",
+      "FERTILIZER PLAN": "വളം പദ്ധതി", "CROP CALENDAR": "വിള കലണ്ടർ", "THIS WEEK": "ഈ ആഴ്ച",
+      "DIAGNOSIS": "രോഗനിർണയം", "IMMEDIATE ACTION": "ഉടനടി നടപടി",
+      "PREVENTION": "പ്രതിരോധം", "WHEN TO GET HELP": "എപ്പോൾ സഹായം തേടണം",
+    },
+  },
+  mr: {
+    tagline: "तुमचे शेत, समजले",
+    tabCrop: "पीक सल्ला", tabDisease: "रोग तपासणी",
+    whereField: "तुमचे शेत कुठे आहे?", lat: "अक्षांश", lon: "रेखांश",
+    useLocation: "माझे स्थान वापरा", locErr: "स्थान मिळाले नाही — स्वतः प्रविष्ट करा",
+    noLoc: "या डिव्हाइसवर स्थान सेवा उपलब्ध नाही",
+    haveSoilCard: "माझ्याकडे माती आरोग्य कार्ड मूल्ये आहेत",
+    getRecommendation: "शिफारस मिळवा", thinking: "विचार करत आहे...",
+    readingSoil: "तुमची माती, हवामान, हंगाम वाचत आहे...",
+    enterLoc: "कृपया तुमचे स्थान प्रविष्ट करा",
+    showLeaf: "पान दाखवा", tapPhoto: "फोटो घेण्यासाठी किंवा निवडण्यासाठी टॅप करा",
+    optionalLoc: "स्थान (ऐच्छिक)",
+    scanDisease: "रोग तपासा", diagnosing: "निदान करत आहे...",
+    lookingClosely: "पानाचा नमुना बारकाईने पाहत आहे...",
+    uploadFirst: "कृपया बाधित पानाचा फोटो अपलोड करा",
+    otherPoss: "इतर शक्यता", showData: "डेटा स्रोत दाखवा", hideData: "डेटा स्रोत लपवा",
+    showTech: "तांत्रिक तपशील दाखवा", hideTech: "तांत्रिक तपशील लपवा",
+    grounded: "अधिकृत पीक मार्गदर्शक तत्त्वांवर आधारित",
+    uncertainTitle: "ही ओळख स्पष्ट नाही.",
+    uncertainBody: "फोटो आपल्याला माहीत असलेल्या नमुन्यांशी जुळत नाही — औषधावर पैसे खर्च करण्यापूर्वी तुमच्या स्थानिक KVK कडून खात्री करा.",
+    ndviLabel: "वनस्पती निर्देशांक (NDVI)", matchConf: "जुळणी विश्वास",
+    sections: {
+      "TOP RECOMMENDATIONS": "मुख्य शिफारसी", "RISK ASSESSMENT": "जोखीम मूल्यांकन",
+      "FERTILIZER PLAN": "खत योजना", "CROP CALENDAR": "पीक दिनदर्शिका", "THIS WEEK": "या आठवड्यात",
+      "DIAGNOSIS": "निदान", "IMMEDIATE ACTION": "तात्काळ कृती",
+      "PREVENTION": "प्रतिबंध", "WHEN TO GET HELP": "मदत कधी घ्यावी",
+    },
+  },
+  bn: {
+    tagline: "আপনার জমি, বোঝা গেছে",
+    tabCrop: "ফসল পরামর্শ", tabDisease: "রোগ স্ক্যান",
+    whereField: "আপনার জমি কোথায়?", lat: "অক্ষাংশ", lon: "দ্রাঘিমাংশ",
+    useLocation: "আমার অবস্থান ব্যবহার করুন", locErr: "অবস্থান পাওয়া যায়নি — নিজে লিখুন",
+    noLoc: "এই ডিভাইসে অবস্থান পরিষেবা উপলব্ধ নেই",
+    haveSoilCard: "আমার কাছে মৃত্তিকা স্বাস্থ্য কার্ডের তথ্য আছে",
+    getRecommendation: "পরামর্শ নিন", thinking: "ভাবছে...",
+    readingSoil: "আপনার মাটি, আবহাওয়া, মৌসুম পড়ছে...",
+    enterLoc: "অনুগ্রহ করে আপনার অবস্থান লিখুন",
+    showLeaf: "পাতা দেখান", tapPhoto: "ছবি তুলতে বা বেছে নিতে ট্যাপ করুন",
+    optionalLoc: "অবস্থান (ঐচ্ছিক)",
+    scanDisease: "রোগ স্ক্যান করুন", diagnosing: "নির্ণয় করছে...",
+    lookingClosely: "পাতার প্যাটার্ন মনোযোগ দিয়ে দেখছে...",
+    uploadFirst: "অনুগ্রহ করে আক্রান্ত পাতার ছবি আপলোড করুন",
+    otherPoss: "অন্যান্য সম্ভাবনা", showData: "ডেটা উৎস দেখান", hideData: "ডেটা উৎস লুকান",
+    showTech: "প্রযুক্তিগত বিবরণ দেখান", hideTech: "প্রযুক্তিগত বিবরণ লুকান",
+    grounded: "অফিসিয়াল ফসল নির্দেশিকার উপর ভিত্তি করে",
+    uncertainTitle: "এই সনাক্তকরণ স্পষ্ট নয়।",
+    uncertainBody: "ছবিটি আমাদের পরিচিত প্যাটার্নের সাথে মেলে না — ওষুধে টাকা খরচ করার আগে আপনার স্থানীয় KVK-তে নিশ্চিত করুন।",
+    ndviLabel: "উদ্ভিদ সূচক (NDVI)", matchConf: "মিল আত্মবিশ্বাস",
+    sections: {
+      "TOP RECOMMENDATIONS": "প্রধান সুপারিশ", "RISK ASSESSMENT": "ঝুঁকি মূল্যায়ন",
+      "FERTILIZER PLAN": "সার পরিকল্পনা", "CROP CALENDAR": "ফসল ক্যালেন্ডার", "THIS WEEK": "এই সপ্তাহে",
+      "DIAGNOSIS": "নির্ণয়", "IMMEDIATE ACTION": "তাৎক্ষণিক পদক্ষেপ",
+      "PREVENTION": "প্রতিরোধ", "WHEN TO GET HELP": "কখন সাহায্য নেবেন",
+    },
+  },
+  gu: {
+    tagline: "તમારું ખેતર, સમજાયું",
+    tabCrop: "પાક સલાહ", tabDisease: "રોગ સ્કેન",
+    whereField: "તમારું ખેતર ક્યાં છે?", lat: "અક્ષાંશ", lon: "રેખાંશ",
+    useLocation: "મારું સ્થાન વાપરો", locErr: "સ્થાન મળ્યું નથી — જાતે દાખલ કરો",
+    noLoc: "આ ડિવાઇસ પર સ્થાન સેવા ઉપલબ્ધ નથી",
+    haveSoilCard: "મારી પાસે માટી આરોગ્ય કાર્ડ મૂલ્યો છે",
+    getRecommendation: "ભલામણ મેળવો", thinking: "વિચારી રહ્યું છે...",
+    readingSoil: "તમારી માટી, હવામાન, ઋતુ વાંચી રહ્યું છે...",
+    enterLoc: "કૃપા કરી તમારું સ્થાન દાખલ કરો",
+    showLeaf: "પાન બતાવો", tapPhoto: "ફોટો લેવા અથવા પસંદ કરવા ટેપ કરો",
+    optionalLoc: "સ્થાન (વૈકલ્પિક)",
+    scanDisease: "રોગ સ્કેન કરો", diagnosing: "નિદાન કરી રહ્યું છે...",
+    lookingClosely: "પાનની પેટર્ન ધ્યાનથી જોઈ રહ્યું છે...",
+    uploadFirst: "કૃપા કરી અસરગ્રસ્ત પાનનો ફોટો અપલોડ કરો",
+    otherPoss: "અન્ય શક્યતાઓ", showData: "ડેટા સ્ત્રોત બતાવો", hideData: "ડેટા સ્ત્રોત છુપાવો",
+    showTech: "તકનીકી વિગતો બતાવો", hideTech: "તકનીકી વિગતો છુપાવો",
+    grounded: "સત્તાવાર પાક માર્ગદર્શિકાઓ પર આધારિત",
+    uncertainTitle: "આ ઓળખ સ્પષ્ટ નથી.",
+    uncertainBody: "ફોટો આપણને જાણીતી પેટર્ન સાથે મેળ ખાતો નથી — દવા પર પૈસા ખર્ચતા પહેલા તમારા સ્થાનિક KVK પર ખાતરી કરો.",
+    ndviLabel: "વનસ્પતિ સૂચકાંક (NDVI)", matchConf: "મેચ વિશ્વાસ",
+    sections: {
+      "TOP RECOMMENDATIONS": "મુખ્ય ભલામણો", "RISK ASSESSMENT": "જોખમ મૂલ્યાંકન",
+      "FERTILIZER PLAN": "ખાતર યોજના", "CROP CALENDAR": "પાક કેલેન્ડર", "THIS WEEK": "આ અઠવાડિયે",
+      "DIAGNOSIS": "નિદાન", "IMMEDIATE ACTION": "તાત્કાલિક પગલાં",
+      "PREVENTION": "નિવારણ", "WHEN TO GET HELP": "મદદ ક્યારે લેવી",
+    },
+  },
+  pa: {
+    tagline: "ਤੁਹਾਡਾ ਖੇਤ, ਸਮਝਿਆ ਗਿਆ",
+    tabCrop: "ਫਸਲ ਸਲਾਹ", tabDisease: "ਰੋਗ ਸਕੈਨ",
+    whereField: "ਤੁਹਾਡਾ ਖੇਤ ਕਿੱਥੇ ਹੈ?", lat: "ਅਕਸ਼ਾਂਸ਼", lon: "ਲੰਬਕਾਰ",
+    useLocation: "ਮੇਰਾ ਟਿਕਾਣਾ ਵਰਤੋ", locErr: "ਟਿਕਾਣਾ ਨਹੀਂ ਮਿਲਿਆ — ਖੁਦ ਦਰਜ ਕਰੋ",
+    noLoc: "ਇਸ ਡਿਵਾਈਸ 'ਤੇ ਟਿਕਾਣਾ ਸੇਵਾ ਉਪਲਬਧ ਨਹੀਂ",
+    haveSoilCard: "ਮੇਰੇ ਕੋਲ ਮਿੱਟੀ ਸਿਹਤ ਕਾਰਡ ਮੁੱਲ ਹਨ",
+    getRecommendation: "ਸਿਫਾਰਸ਼ ਲਵੋ", thinking: "ਸੋਚ ਰਿਹਾ ਹੈ...",
+    readingSoil: "ਤੁਹਾਡੀ ਮਿੱਟੀ, ਮੌਸਮ, ਰੁੱਤ ਪੜ੍ਹ ਰਿਹਾ ਹੈ...",
+    enterLoc: "ਕਿਰਪਾ ਕਰਕੇ ਆਪਣਾ ਟਿਕਾਣਾ ਦਰਜ ਕਰੋ",
+    showLeaf: "ਪੱਤਾ ਦਿਖਾਓ", tapPhoto: "ਫੋਟੋ ਲੈਣ ਜਾਂ ਚੁਣਨ ਲਈ ਟੈਪ ਕਰੋ",
+    optionalLoc: "ਟਿਕਾਣਾ (ਵਿਕਲਪਿਕ)",
+    scanDisease: "ਰੋਗ ਸਕੈਨ ਕਰੋ", diagnosing: "ਜਾਂਚ ਹੋ ਰਹੀ ਹੈ...",
+    lookingClosely: "ਪੱਤੇ ਦੇ ਪੈਟਰਨ ਨੂੰ ਧਿਆਨ ਨਾਲ ਦੇਖ ਰਿਹਾ ਹੈ...",
+    uploadFirst: "ਕਿਰਪਾ ਕਰਕੇ ਪ੍ਰਭਾਵਿਤ ਪੱਤੇ ਦੀ ਫੋਟੋ ਅਪਲੋਡ ਕਰੋ",
+    otherPoss: "ਹੋਰ ਸੰਭਾਵਨਾਵਾਂ", showData: "ਡਾਟਾ ਸਰੋਤ ਦਿਖਾਓ", hideData: "ਡਾਟਾ ਸਰੋਤ ਲੁਕਾਓ",
+    showTech: "ਤਕਨੀਕੀ ਵੇਰਵੇ ਦਿਖਾਓ", hideTech: "ਤਕਨੀਕੀ ਵੇਰਵੇ ਲੁਕਾਓ",
+    grounded: "ਅਧਿਕਾਰਤ ਫਸਲ ਦਿਸ਼ਾ-ਨਿਰਦੇਸ਼ਾਂ 'ਤੇ ਆਧਾਰਿਤ",
+    uncertainTitle: "ਇਹ ਪਛਾਣ ਸਪੱਸ਼ਟ ਨਹੀਂ ਹੈ।",
+    uncertainBody: "ਫੋਟੋ ਸਾਡੇ ਜਾਣੇ-ਪਛਾਣੇ ਪੈਟਰਨਾਂ ਨਾਲ ਮੇਲ ਨਹੀਂ ਖਾਂਦੀ — ਦਵਾਈ 'ਤੇ ਪੈਸਾ ਖਰਚ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਆਪਣੇ ਸਥਾਨਕ KVK ਤੋਂ ਪੁਸ਼ਟੀ ਕਰੋ।",
+    ndviLabel: "ਬਨਸਪਤੀ ਸੂਚਕਾਂਕ (NDVI)", matchConf: "ਮੇਲ ਭਰੋਸਾ",
+    sections: {
+      "TOP RECOMMENDATIONS": "ਮੁੱਖ ਸਿਫਾਰਸ਼ਾਂ", "RISK ASSESSMENT": "ਜੋਖਮ ਮੁਲਾਂਕਣ",
+      "FERTILIZER PLAN": "ਖਾਦ ਯੋਜਨਾ", "CROP CALENDAR": "ਫਸਲ ਕੈਲੰਡਰ", "THIS WEEK": "ਇਸ ਹਫ਼ਤੇ",
+      "DIAGNOSIS": "ਨਿਦਾਨ", "IMMEDIATE ACTION": "ਤੁਰੰਤ ਕਾਰਵਾਈ",
+      "PREVENTION": "ਰੋਕਥਾਮ", "WHEN TO GET HELP": "ਮਦਦ ਕਦੋਂ ਲੈਣੀ ਹੈ",
+    },
+  },
+  or: {
+    tagline: "ଆପଣଙ୍କ ଜମି, ବୁଝାଗଲା",
+    tabCrop: "ଫସଲ ପରାମର୍ଶ", tabDisease: "ରୋଗ ସ୍କାନ",
+    whereField: "ଆପଣଙ୍କ ଜମି କେଉଁଠି?", lat: "ଅକ୍ଷାଂଶ", lon: "ଦ୍ରାଘିମା",
+    useLocation: "ମୋ ଅବସ୍ଥାନ ବ୍ୟବହାର କରନ୍ତୁ", locErr: "ଅବସ୍ଥାନ ମିଳିଲା ନାହିଁ — ନିଜେ ଲେଖନ୍ତୁ",
+    noLoc: "ଏହି ଡିଭାଇସରେ ଅବସ୍ଥାନ ସେବା ଉପଲବ୍ଧ ନାହିଁ",
+    haveSoilCard: "ମୋ ପାଖରେ ମାଟି ସ୍ୱାସ୍ଥ୍ୟ କାର୍ଡ ମୂଲ୍ୟ ଅଛି",
+    getRecommendation: "ପରାମର୍ଶ ନିଅନ୍ତୁ", thinking: "ଭାବୁଛି...",
+    readingSoil: "ଆପଣଙ୍କ ମାଟି, ପାଣିପାଗ, ଋତୁ ପଢ଼ୁଛି...",
+    enterLoc: "ଦୟାକରି ଆପଣଙ୍କ ଅବସ୍ଥାନ ଲେଖନ୍ତୁ",
+    showLeaf: "ପତ୍ର ଦେଖାନ୍ତୁ", tapPhoto: "ଫଟୋ ନେବାକୁ କିମ୍ବା ବାଛିବାକୁ ଟାପ୍ କରନ୍ତୁ",
+    optionalLoc: "ଅବସ୍ଥାନ (ଇଚ୍ଛାଧୀନ)",
+    scanDisease: "ରୋଗ ସ୍କାନ କରନ୍ତୁ", diagnosing: "ନିର୍ଣ୍ଣୟ କରୁଛି...",
+    lookingClosely: "ପତ୍ରର ନମୁନାକୁ ଧ୍ୟାନରେ ଦେଖୁଛି...",
+    uploadFirst: "ଦୟାକରି ପ୍ରଭାବିତ ପତ୍ରର ଫଟୋ ଅପଲୋଡ୍ କରନ୍ତୁ",
+    otherPoss: "ଅନ୍ୟ ସମ୍ଭାବନା", showData: "ତଥ୍ୟ ଉତ୍ସ ଦେଖାନ୍ତୁ", hideData: "ତଥ୍ୟ ଉତ୍ସ ଲୁଚାନ୍ତୁ",
+    showTech: "ବୈଷୟିକ ବିବରଣୀ ଦେଖାନ୍ତୁ", hideTech: "ବୈଷୟିକ ବିବରଣୀ ଲୁଚାନ୍ତୁ",
+    grounded: "ସରକାରୀ ଫସଲ ମାର୍ଗଦର୍ଶିକା ଉପରେ ଆଧାରିତ",
+    uncertainTitle: "ଏହି ପରିଚୟ ସ୍ପଷ୍ଟ ନାହିଁ।",
+    uncertainBody: "ଫଟୋ ଆମର ଜଣାଶୁଣା ନମୁନା ସହିତ ମେଳ ଖାଉ ନାହିଁ — ଔଷଧରେ ଟଙ୍କା ଖର୍ଚ୍ଚ କରିବା ପୂର୍ବରୁ ଆପଣଙ୍କ ସ୍ଥାନୀୟ KVK ରେ ନିଶ୍ଚିତ କରନ୍ତୁ।",
+    ndviLabel: "ଉଦ୍ଭିଦ ସୂଚକାଙ୍କ (NDVI)", matchConf: "ମେଳ ବିଶ୍ୱାସ",
+    sections: {
+      "TOP RECOMMENDATIONS": "ମୁଖ୍ୟ ସୁପାରିଶ", "RISK ASSESSMENT": "ବିପଦ ମୂଲ୍ୟାଙ୍କନ",
+      "FERTILIZER PLAN": "ସାର ଯୋଜନା", "CROP CALENDAR": "ଫସଲ କ୍ୟାଲେଣ୍ଡର", "THIS WEEK": "ଏହି ସପ୍ତାହ",
+      "DIAGNOSIS": "ନିଦାନ", "IMMEDIATE ACTION": "ତୁରନ୍ତ କାର୍ଯ୍ୟ",
+      "PREVENTION": "ପ୍ରତିରୋଧ", "WHEN TO GET HELP": "କେବେ ସାହାଯ୍ୟ ନେବେ",
+    },
+  },
+};
+function t(lang, key) { return (T[lang] && T[lang][key]) || T.en[key]; }
+function sectionLabel(lang, key) { return (T[lang]?.sections?.[key]) || T.en.sections[key] || key; }
+
+const SECTION_META = {
+  "TOP RECOMMENDATIONS": { icon: "🌾", tone: "top" },
+  "RISK ASSESSMENT":     { icon: "⚠️", tone: "risk" },
+  "FERTILIZER PLAN":     { icon: "🌱", tone: "fertilizer" },
+  "CROP CALENDAR":       { icon: "📅", tone: "calendar" },
+  "THIS WEEK":           { icon: "🌤️", tone: "week" },
+  "DIAGNOSIS":           { icon: "🔍", tone: "diagnosis" },
+  "IMMEDIATE ACTION":    { icon: "🚨", tone: "action" },
+  "PREVENTION":          { icon: "🛡️", tone: "prevention" },
+  "WHEN TO GET HELP":    { icon: "🏥", tone: "help" },
 };
 
 function parseAdvisory(text) {
   if (!text) return [];
+  const parts = text.split(/\*\*([A-Z][A-Z\s]+)\*\*/g);
   const sections = [];
-  const parts = text.split(/\*\*([A-Z][A-Z\s]+)\*\*/);
-  
   for (let i = 1; i < parts.length; i += 2) {
     const title = parts[i].trim();
     const body = (parts[i + 1] || "").trim();
     if (body) sections.push({ title, body });
   }
-  
-  if (sections.length === 0) {
-    sections.push({ title: "ADVISORY", body: text });
-  }
   return sections;
 }
 
 function renderMarkdown(text) {
-  let html = text
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/^(\d+)\.\s/gm, '<li_num>')
-    .replace(/^[-•]\s/gm, '<li_bul>');
-  
-  const lines = html.split('\n').filter(l => l.trim());
-  let result = [];
-  let inList = false;
-  let listType = null;
-  
-  for (const line of lines) {
-    if (line.startsWith('<li_num>')) {
-      if (!inList || listType !== 'ol') {
-        if (inList) result.push(listType === 'ol' ? '</ol>' : '</ul>');
-        result.push('<ol>');
-        inList = true; listType = 'ol';
-      }
-      result.push('<li>' + line.replace('<li_num>', '') + '</li>');
-    } else if (line.startsWith('<li_bul>')) {
-      if (!inList || listType !== 'ul') {
-        if (inList) result.push(listType === 'ol' ? '</ol>' : '</ul>');
-        result.push('<ul>');
-        inList = true; listType = 'ul';
-      }
-      result.push('<li>' + line.replace('<li_bul>', '') + '</li>');
-    } else {
-      if (inList) {
-        result.push(listType === 'ol' ? '</ol>' : '</ul>');
-        inList = false; listType = null;
-      }
-      if (line.trim() === '---') continue;
-      result.push('<p>' + line + '</p>');
-    }
-  }
-  if (inList) result.push(listType === 'ol' ? '</ol>' : '</ul>');
-  return result.join('');
+  return text
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/^\* (.+)$/gm, "<li>$1</li>")
+    .replace(/^\d+\.\s+(.+)$/gm, "<li>$1</li>")
+    .replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`)
+    .split(/\n{2,}/)
+    .map(p => p.startsWith("<ul>") ? p : `<p>${p}</p>`)
+    .join("");
+}
+
+// Collapsible advisory — first section open by default (the headline
+// answer), the rest tucked away so the whole result fits closer to one
+// screen instead of a long scroll. Tap any header to expand/collapse it.
+function AdvisorySections({ sections, lang }) {
+  const [openIdx, setOpenIdx] = useState(0);
+  return (
+    <div className="advisory">
+      {sections.map((sec, i) => {
+        const meta = SECTION_META[sec.title] || { icon: "📋", tone: "" };
+        const isOpen = openIdx === i;
+        return (
+          <div className={`advisory-section tone-${meta.tone}`} key={i}>
+            <div className="sec-header" onClick={() => setOpenIdx(isOpen ? -1 : i)}>
+              <h3>{meta.icon} {sectionLabel(lang, sec.title)}</h3>
+              <span className={`sec-arrow ${isOpen ? "open" : ""}`}>▾</span>
+            </div>
+            {isOpen && (
+              <div className="sec-body" dangerouslySetInnerHTML={{ __html: renderMarkdown(sec.body) }} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 function App() {
-  const [tab, setTab] = useState("recommend");
+  const [tab, setTab] = useState("crop");
   const [lang, setLang] = useState("en");
-  
+
   return (
     <div>
-      <div className="header">
-        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-          <div>
-            <h1>🌱 AgriN</h1>
-            <p>AI-Powered Farming Advisory</p>
+      <div className="hero">
+        <div className="hero-blobs">
+          <div className="blob blob-1"></div>
+          <div className="blob blob-2"></div>
+          <div className="blob blob-3"></div>
+        </div>
+        <div className="hero-top">
+          <div className="wordmark">
+            <div className="mark">🌱</div>
+            <div>
+              <h1>AgriN</h1>
+              <div className="tagline">{t(lang, "tagline")}</div>
+            </div>
           </div>
-          <select
-            value={lang} onChange={e => setLang(e.target.value)}
-            style={{
-              background:'rgba(255,255,255,0.2)', color:'white', border:'1px solid rgba(255,255,255,0.3)',
-              borderRadius:8, padding:'6px 10px', fontSize:13, fontFamily:'inherit'
-            }}
-          >
-            {Object.entries(LANGUAGES).map(([k,v]) => (
-              <option key={k} value={k} style={{color:'#111'}}>{v}</option>
+          <select className="lang-select" value={lang} onChange={e => setLang(e.target.value)}>
+            {Object.entries(LANGUAGES).map(([code, name]) => (
+              <option key={code} value={code}>{name}</option>
             ))}
           </select>
         </div>
+        <div className="tabs">
+          <button className={`tab ${tab === "crop" ? "active" : ""}`} onClick={() => setTab("crop")}>
+            🌾 {t(lang, "tabCrop")}
+          </button>
+          <button className={`tab ${tab === "disease" ? "active" : ""}`} onClick={() => setTab("disease")}>
+            🔬 {t(lang, "tabDisease")}
+          </button>
+        </div>
       </div>
-      
-      <div className="tabs">
-        <button className={`tab ${tab === 'recommend' ? 'active' : ''}`} onClick={() => setTab('recommend')}>
-          🌾 Crop Advisory
-        </button>
-        <button className={`tab ${tab === 'disease' ? 'active' : ''}`} onClick={() => setTab('disease')}>
-          🔬 Disease Scan
-        </button>
-      </div>
-      
       <div className="content">
-        {tab === 'recommend' ? <RecommendTab lang={lang}/> : <DiseaseTab lang={lang}/>}
+        {tab === "crop" ? <CropTab lang={lang} /> : <DiseaseTab lang={lang} />}
       </div>
     </div>
   );
 }
 
-function RecommendTab({ lang }) {
+function CropTab({ lang }) {
   const [lat, setLat] = useState("");
   const [lon, setLon] = useState("");
+  const [showManual, setShowManual] = useState(false);
+  const [manual, setManual] = useState({ N: "", P: "", K: "", ph: "" });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-  const [showSoil, setShowSoil] = useState(false);
-  const [soil, setSoil] = useState({ N: "", P: "", K: "", ph: "" });
+
+  const useMyLocation = () => {
+    if (!navigator.geolocation) { setError(t(lang, "noLoc")); return; }
+    navigator.geolocation.getCurrentPosition(
+      pos => { setLat(pos.coords.latitude.toFixed(4)); setLon(pos.coords.longitude.toFixed(4)); },
+      () => setError(t(lang, "locErr"))
+    );
+  };
 
   const handleSubmit = async () => {
-    if (!lat || !lon) { setError("Please enter latitude and longitude"); return; }
+    if (!lat || !lon) { setError(t(lang, "enterLoc")); return; }
     setLoading(true); setError(null); setResult(null);
-    
     try {
       const body = { lat: parseFloat(lat), lon: parseFloat(lon), language: lang };
-      if (showSoil && soil.N) body.N = parseFloat(soil.N);
-      if (showSoil && soil.P) body.P = parseFloat(soil.P);
-      if (showSoil && soil.K) body.K = parseFloat(soil.K);
-      if (showSoil && soil.ph) body.ph = parseFloat(soil.ph);
-      
+      if (showManual) {
+        if (manual.N) body.N = parseFloat(manual.N);
+        if (manual.P) body.P = parseFloat(manual.P);
+        if (manual.K) body.K = parseFloat(manual.K);
+        if (manual.ph) body.ph = parseFloat(manual.ph);
+      }
       const res = await fetch(`${API_BASE}/recommend`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error(`Server error: ${res.status}`);
       setResult(await res.json());
@@ -415,106 +785,79 @@ function RecommendTab({ lang }) {
   return (
     <div>
       <div className="card">
-        <div className="card-title">📍 Your Location</div>
+        <div className="card-title">📍 {t(lang, "whereField")}</div>
         <div className="field-row">
           <div className="field">
-            <label>Latitude</label>
-            <input type="number" step="any" placeholder="e.g. 13.08" value={lat} onChange={e => setLat(e.target.value)}/>
+            <input type="number" step="any" placeholder={t(lang, "lat")} value={lat} onChange={e => setLat(e.target.value)} />
           </div>
           <div className="field">
-            <label>Longitude</label>
-            <input type="number" step="any" placeholder="e.g. 80.27" value={lon} onChange={e => setLon(e.target.value)}/>
+            <input type="number" step="any" placeholder={t(lang, "lon")} value={lon} onChange={e => setLon(e.target.value)} />
           </div>
         </div>
-        
-        <div className="toggle-row" onClick={() => setShowSoil(!showSoil)}>
-          <div className={`toggle-switch ${showSoil ? 'on' : ''}`}></div>
-          <span>I have my Soil Health Card values</span>
+        <button className="btn btn-secondary" style={{ marginBottom: 14 }} onClick={useMyLocation}>
+          📡 {t(lang, "useLocation")}
+        </button>
+
+        <div className="toggle-row" onClick={() => setShowManual(!showManual)}>
+          <div className={`toggle-switch ${showManual ? "on" : ""}`}></div>
+          {t(lang, "haveSoilCard")}
         </div>
-        
-        {showSoil && (
+        {showManual && (
           <div className="soil-fields">
             <div className="field-row">
-              <div className="field">
-                <label>Nitrogen (kg/ha)</label>
-                <input type="number" placeholder="N" value={soil.N} onChange={e => setSoil({...soil, N: e.target.value})}/>
-              </div>
-              <div className="field">
-                <label>Phosphorus (kg/ha)</label>
-                <input type="number" placeholder="P" value={soil.P} onChange={e => setSoil({...soil, P: e.target.value})}/>
-              </div>
+              <div className="field"><input type="number" placeholder="N" value={manual.N} onChange={e => setManual({ ...manual, N: e.target.value })} /></div>
+              <div className="field"><input type="number" placeholder="P" value={manual.P} onChange={e => setManual({ ...manual, P: e.target.value })} /></div>
             </div>
             <div className="field-row">
-              <div className="field">
-                <label>Potassium (kg/ha)</label>
-                <input type="number" placeholder="K" value={soil.K} onChange={e => setSoil({...soil, K: e.target.value})}/>
-              </div>
-              <div className="field">
-                <label>Soil pH</label>
-                <input type="number" step="0.1" placeholder="pH" value={soil.ph} onChange={e => setSoil({...soil, ph: e.target.value})}/>
-              </div>
+              <div className="field"><input type="number" placeholder="K" value={manual.K} onChange={e => setManual({ ...manual, K: e.target.value })} /></div>
+              <div className="field"><input type="number" step="0.1" placeholder="pH" value={manual.ph} onChange={e => setManual({ ...manual, ph: e.target.value })} /></div>
             </div>
           </div>
         )}
-        
+
         <button className="btn btn-primary" onClick={handleSubmit} disabled={loading}>
-          {loading ? "" : "🌾"} {loading ? "Analyzing..." : "Get Crop Advisory"}
+          {loading ? t(lang, "thinking") : `🌾 ${t(lang, "getRecommendation")}`}
         </button>
       </div>
-      
+
       {loading && (
         <div className="loader">
           <div className="spinner"></div>
-          <div className="loader-text">
-            Fetching soil, climate & satellite data...<br/>
-            <span style={{fontSize:12,opacity:0.7}}>This takes 15-30 seconds</span>
-          </div>
+          <div className="loader-text">{t(lang, "readingSoil")}</div>
         </div>
       )}
-      
-      {error && <div className="error-card"><p>❌ {error}</p></div>}
-      
-      {result && <RecommendResult data={result}/>}
+      {error && <div className="error-card"><p>⚠️ {error}</p></div>}
+      {result && <CropResult data={result} lang={lang} />}
     </div>
   );
 }
 
-function RecommendResult({ data }) {
+function CropResult({ data, lang }) {
   const { summary, advisory, predictions, data_sources } = data;
   const sections = parseAdvisory(advisory);
-  
+  const [showDetails, setShowDetails] = useState(false);
+
   return (
     <div>
-      <div className="summary-card">
-        <div className="summary-title">
-          {summary?.top_crop ? summary.top_crop.charAt(0).toUpperCase() + summary.top_crop.slice(1) : "—"}
-        </div>
+      <div className="summary-card ok">
+        <div className="summary-title">{summary?.top_crop || "—"}</div>
         <div className="summary-subtitle">
-          {summary?.location || "Unknown location"} • {summary?.season || "—"} season
-          {summary?.season_auto ? " (auto-detected)" : ""}
-        </div>
-        <div className="summary-badges">
-          <span className="badge badge-green">🌾 Best match: {summary?.confidence || "—"}</span>
-          <span className={`badge ${summary?.soil_confidence === 'high' ? 'badge-green' : 'badge-amber'}`}>
-            🧪 Soil: {summary?.soil_confidence || "—"}
-          </span>
-          {data_sources?.satellite?.ndvi && (
-            <span className="badge badge-blue">🛰️ NDVI: {data_sources.satellite.ndvi}</span>
-          )}
+          {summary?.location} · {summary?.season}{summary?.season_auto ? " (auto)" : ""}
         </div>
       </div>
-      
+
       {predictions && predictions.length > 0 && (
         <div className="predictions">
           {predictions.slice(0, 3).map((p, i) => (
-            <div className="pred-card" key={i}>
-              <div className={`pred-rank pred-rank-${i+1}`}>{i+1}</div>
+            <div className={`pred-card rank-${i + 1}`} key={i}>
+              <div className={`pred-rank pred-rank-${i + 1}`}>{i + 1}</div>
               <div>
-                <div className="pred-name">{p.crop}</div>
+                <div className="pred-name">
+                  {p.crop}
+                  {p.viability_is_estimated && <span className="est-tag">est.</span>}
+                </div>
                 <div className="pred-detail">
-                  {p.dominant_factor
-                    ? `Driven by ${p.dominant_factor.feature} (${p.dominant_factor.percentage}%)`
-                    : ""}
+                  {p.dominant_factor ? `↳ ${p.dominant_factor.feature}` : ""}
                 </div>
               </div>
               <div className="pred-score">{(p.final_score * 100).toFixed(0)}%</div>
@@ -522,27 +865,27 @@ function RecommendResult({ data }) {
           ))}
         </div>
       )}
-      
-      <div className="advisory">
-        {sections.map((sec, i) => (
-          <div className="advisory-section" key={i}>
-            <h3>{SECTION_ICONS[sec.title] || "📋"} {sec.title}</h3>
-            <div dangerouslySetInnerHTML={{ __html: renderMarkdown(sec.body) }}/>
-          </div>
-        ))}
+
+      <AdvisorySections sections={sections} lang={lang} />
+
+      {data_sources?.rag_grounded && (
+        <div className="grounded-tag">✓ {t(lang, "grounded")}</div>
+      )}
+
+      <div className="details-toggle" onClick={() => setShowDetails(!showDetails)}>
+        {showDetails ? t(lang, "hideData") : t(lang, "showData")}
+        <span className={`arrow ${showDetails ? "open" : ""}`}>▾</span>
       </div>
-      
-      {data_sources && (
-        <div className="card" style={{marginTop: 16}}>
-          <div className="card-title" style={{fontSize:13}}>📊 Data Sources</div>
-          <div className="data-sources" style={{borderTop:'none', paddingTop:0}}>
-            <span className="source-pill">🧪 Soil: {data_sources.soil?.source || "—"}</span>
-            <span className="source-pill">🌡️ Climate: {data_sources.climate?.years || "—"} years</span>
-            <span className="source-pill">🌧️ 7-day rain: {data_sources.forecast?.rainfall_7d || "—"}mm</span>
-            <span className="source-pill">🛰️ NDVI: {data_sources.satellite?.interpretation || "—"}</span>
+      {showDetails && data_sources && (
+        <div className="card">
+          <div className="data-sources">
+            <span className="source-pill">🌱 {data_sources.soil?.source || "—"}</span>
+            <span className="source-pill">🌦️ {data_sources.climate?.years || "—"}yr</span>
+            <span className="source-pill">🌧️ {data_sources.forecast?.rainfall_7d ?? "—"}mm</span>
+            <span className="source-pill">🛰️ {data_sources.satellite?.interpretation || "—"}</span>
           </div>
           {data_sources.soil?.note && (
-            <p style={{fontSize:12, color:'var(--gray-500)', marginTop:8}}>{data_sources.soil.note}</p>
+            <p style={{ fontSize: 12, color: "var(--ink-soft)", marginTop: 10 }}>{data_sources.soil.note}</p>
           )}
         </div>
       )}
@@ -568,16 +911,14 @@ function DiseaseTab({ lang }) {
   };
 
   const handleSubmit = async () => {
-    if (!image) { setError("Please upload a photo of the affected leaf"); return; }
+    if (!image) { setError(t(lang, "uploadFirst")); return; }
     setLoading(true); setError(null); setResult(null);
-    
     try {
       const form = new FormData();
       form.append("file", image);
       form.append("language", lang);
       if (lat) form.append("lat", lat);
       if (lon) form.append("lon", lon);
-      
       const res = await fetch(`${API_BASE}/disease`, { method: "POST", body: form });
       if (!res.ok) throw new Error(`Server error: ${res.status}`);
       setResult(await res.json());
@@ -591,97 +932,105 @@ function DiseaseTab({ lang }) {
   return (
     <div>
       <div className="card">
-        <div className="card-title">📸 Upload Leaf Photo</div>
-        <div
-          className={`upload-area ${imagePreview ? 'has-image' : ''}`}
-          onClick={() => fileRef.current?.click()}
-        >
+        <div className="card-title">📸 {t(lang, "showLeaf")}</div>
+        <div className={`upload-area ${imagePreview ? "has-image" : ""}`} onClick={() => fileRef.current?.click()}>
           {imagePreview
-            ? <img src={imagePreview} alt="Uploaded leaf"/>
+            ? <img src={imagePreview} alt="Uploaded leaf" />
             : <>
                 <div className="upload-icon">📷</div>
-                <div className="upload-text">Tap to take a photo or choose from gallery</div>
+                <div className="upload-text">{t(lang, "tapPhoto")}</div>
               </>
           }
-          <input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handleFile}/>
+          <input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handleFile} />
         </div>
-        
-        <div style={{marginTop:14}}>
-          <div className="card-title" style={{fontSize:13, color:'var(--gray-500)'}}>📍 Location (optional — for satellite context)</div>
+
+        <div style={{ marginTop: 14 }}>
+          <div className="card-title" style={{ fontSize: 12.5, color: "var(--ink-soft)" }}>📍 {t(lang, "optionalLoc")}</div>
           <div className="field-row">
-            <div className="field">
-              <input type="number" step="any" placeholder="Latitude" value={lat} onChange={e => setLat(e.target.value)}/>
-            </div>
-            <div className="field">
-              <input type="number" step="any" placeholder="Longitude" value={lon} onChange={e => setLon(e.target.value)}/>
-            </div>
+            <div className="field"><input type="number" step="any" placeholder={t(lang, "lat")} value={lat} onChange={e => setLat(e.target.value)} /></div>
+            <div className="field"><input type="number" step="any" placeholder={t(lang, "lon")} value={lon} onChange={e => setLon(e.target.value)} /></div>
           </div>
         </div>
-        
+
         <button className="btn btn-primary" onClick={handleSubmit} disabled={loading || !image}>
-          {loading ? "" : "🔬"} {loading ? "Diagnosing..." : "Scan for Disease"}
+          {loading ? t(lang, "diagnosing") : `🔬 ${t(lang, "scanDisease")}`}
         </button>
       </div>
-      
+
       {loading && (
         <div className="loader">
           <div className="spinner"></div>
-          <div className="loader-text">Analyzing leaf pattern...</div>
+          <div className="loader-text">{t(lang, "lookingClosely")}</div>
         </div>
       )}
-      
-      {error && <div className="error-card"><p>❌ {error}</p></div>}
-      
-      {result && <DiseaseResult data={result}/>}
+      {error && <div className="error-card"><p>⚠️ {error}</p></div>}
+      {result && <DiseaseResult data={result} lang={lang} />}
     </div>
   );
 }
 
-function DiseaseResult({ data }) {
+function DiseaseResult({ data, lang }) {
   const { summary, advisory, details } = data;
   const sections = parseAdvisory(advisory);
   const isHealthy = summary?.status === "healthy";
-  
+  const isUncertain = summary?.identification_uncertain;
+  const [showDetails, setShowDetails] = useState(false);
+
   return (
     <div>
-      <div className="summary-card" style={isHealthy ? {background:'var(--green-50)', borderColor:'var(--green-500)'} : {background:'var(--amber-50)', borderColor:'var(--amber-500)'}}>
-        <div className="summary-title">
-          {isHealthy ? "✅ " : "⚠️ "}
-          {summary?.disease || "Unknown"}
+      {isUncertain && (
+        <div className="uncertain-banner">
+          <div className="icon">🔎</div>
+          <div className="text">
+            <strong>{t(lang, "uncertainTitle")}</strong> {t(lang, "uncertainBody")}
+          </div>
         </div>
-        <div className="summary-subtitle">
-          {summary?.crop || "—"} • Confidence: {summary?.confidence || "—"}
-        </div>
+      )}
+
+      <div className={`summary-card ${isHealthy ? "ok" : "warn"}`}>
+        <div className="summary-title">{isHealthy ? "✅ " : ""}{summary?.disease || "Unknown"}</div>
+        <div className="summary-subtitle">{summary?.crop || "—"} · {summary?.confidence || "—"}</div>
       </div>
-      
-      {details?.all_predictions && (
+
+      {details?.all_predictions && details.all_predictions.length > 1 && (
         <div className="card">
-          <div className="card-title" style={{fontSize:13}}>Other possibilities</div>
+          <div className="card-title" style={{ fontSize: 12.5 }}>{t(lang, "otherPoss")}</div>
           {details.all_predictions.slice(1, 4).map((p, i) => (
-            <div key={i} style={{display:'flex', justifyContent:'space-between', padding:'6px 0', fontSize:13, color:'var(--gray-600)'}}>
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", fontSize: 13, color: "var(--ink-soft)" }}>
               <span>{p.crop} — {p.disease || "Healthy"}</span>
-              <span style={{fontWeight:500}}>{(p.confidence * 100).toFixed(1)}%</span>
+              <span style={{ fontWeight: 600 }}>{(p.confidence * 100).toFixed(1)}%</span>
             </div>
           ))}
         </div>
       )}
-      
-      <div className="advisory">
-        {sections.map((sec, i) => (
-          <div className="advisory-section" key={i}>
-            <h3>{SECTION_ICONS[sec.title] || "📋"} {sec.title}</h3>
-            <div dangerouslySetInnerHTML={{ __html: renderMarkdown(sec.body) }}/>
+
+      <AdvisorySections sections={sections} lang={lang} />
+
+      {details?.rag_grounded && (
+        <div className="grounded-tag">✓ {t(lang, "grounded")}</div>
+      )}
+
+      {(details?.satellite?.ndvi || details?.ood_check) && (
+        <>
+          <div className="details-toggle" onClick={() => setShowDetails(!showDetails)}>
+            {showDetails ? t(lang, "hideTech") : t(lang, "showTech")}
+            <span className={`arrow ${showDetails ? "open" : ""}`}>▾</span>
           </div>
-        ))}
-      </div>
-      
-      {details?.satellite?.ndvi && (
-        <div className="card">
-          <div className="card-title" style={{fontSize:13}}>🛰️ Satellite Context</div>
-          <p style={{fontSize:13, color:'var(--gray-600)'}}>
-            NDVI: {details.satellite.ndvi} — {details.satellite.interpretation}
-          </p>
-        </div>
+          {showDetails && (
+            <div className="card">
+              {details?.satellite?.ndvi && (
+                <p style={{ fontSize: 13, color: "var(--ink-soft)", marginBottom: 8 }}>
+                  🛰️ {t(lang, "ndviLabel")}: {details.satellite.ndvi} — {details.satellite.interpretation}
+                </p>
+              )}
+              {details?.ood_check && (
+                <p style={{ fontSize: 13, color: "var(--ink-soft)" }}>
+                  {t(lang, "matchConf")}: {details.ood_check.distance_to_nearest_class} / {details.ood_check.threshold}
+                </p>
+              )}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -4,8 +4,8 @@ uvicorn[standard]
 python-multipart
 
 # ML
-torch
-torchvision
+#torch
+#torchvision
 xgboost
 shap
 scikit-learn
