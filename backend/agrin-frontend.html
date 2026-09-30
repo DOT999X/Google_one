@@ -312,7 +312,7 @@ h1, h2, h3, .serif { font-family: 'Fraunces', Georgia, serif; }
 <script type="text/babel">
 const { useState, useRef } = React;
 
-const API_BASE = "http://127.0.0.1:8080";
+const API_BASE = "https://agrin-backend-734148202950.asia-south1.run.app";
 
 const LANGUAGES = {
   en: "English", hi: "हिन्दी", ta: "தமிழ்", te: "తెలుగు",
@@ -653,7 +653,12 @@ const SECTION_META = {
 
 function parseAdvisory(text) {
   if (!text) return [];
-  const parts = text.split(/\*\*([A-Z][A-Z\s]+)\*\*/g);
+  // Safety net for a truncated Gemini response: an incomplete trailing
+  // header (opens with ** but the closing ** never arrived because
+  // generation got cut off) would otherwise leak as garbled text glued
+  // onto the previous section's body. Strip it before splitting.
+  const cleaned = text.replace(/\*\*[A-Z][A-Z\s]*$/, "").trim();
+  const parts = cleaned.split(/\*\*([A-Z][A-Z\s]+)\*\*/g);
   const sections = [];
   for (let i = 1; i < parts.length; i += 2) {
     const title = parts[i].trim();

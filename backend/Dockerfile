@@ -23,6 +23,7 @@ COPY requirements.txt requirements_rag.txt ./
 RUN pip install --no-cache-dir -r requirements.txt -r requirements_rag.txt
 
 COPY main.py .
+COPY agrin-frontend.html .
 COPY rag/ ./rag/
 COPY models/ ./models/
 

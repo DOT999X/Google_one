@@ -79,7 +79,7 @@ except ImportError:
 MODEL_DIR = os.environ.get("MODEL_DIR", "models")
 GCP_PROJECT = os.environ.get("GCP_PROJECT", "")
 GCS_BUCKET = os.environ.get("GCS_BUCKET", "agrin-images")
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.6-flash")
 GEE_SERVICE_ACCOUNT = os.environ.get("GEE_SERVICE_ACCOUNT", "")
 
@@ -136,6 +136,13 @@ app.add_middleware(
     allow_origins=["*"], allow_credentials=True,
     allow_methods=["*"], allow_headers=["*"],
 )
+
+# ── Serve the frontend at the root URL ──────────────────────────────────
+from fastapi.responses import FileResponse as _FileResponse
+
+@app.get("/", include_in_schema=False)
+async def serve_frontend():
+    return _FileResponse("agrin-frontend.html")
 
 # ---------------------------------------------------------------------------
 # Global model references
@@ -584,37 +591,93 @@ def _interpret_ndvi(ndvi):
 
 async def call_gemini(prompt: str, max_retries: int = 2) -> str:
     """
-    Calls Gemini with automatic backoff on free-tier rate limits (429).
-    The free tier allows only 5 req/min per model — easy to hit during
-    active testing/development, so we retry once or twice with a short
-    wait rather than surfacing a raw quota error to the farmer.
+    Calls Gemini via direct HTTP request instead of the google.generativeai
+    SDK. The SDK's internal retry logic was hanging for 600s on Cloud Run
+    due to a '503 Illegal metadata' error from Cloud Run's metadata service
+    interfering with the SDK's auth layer. Direct HTTP with httpx bypasses
+    that entirely — same API, same key, same model, no SDK middleware.
     """
-    if not GEMINI_AVAILABLE or not GEMINI_API_KEY:
+    if not GEMINI_API_KEY:
         return "Gemini advisory unavailable — API key not configured."
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
+
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {"maxOutputTokens": 4096},
+    }
 
     for attempt in range(max_retries + 1):
         try:
-            model = genai.GenerativeModel(GEMINI_MODEL)
-            response = model.generate_content(prompt)
-            return response.text
-        except Exception as e:
-            err_str = str(e)
-            is_rate_limit = "429" in err_str or "quota" in err_str.lower()
+            async with httpx.AsyncClient(timeout=30) as client:
+                resp = await client.post(
+                    url,
+                    headers={"x-goog-api-key": GEMINI_API_KEY},
+                    json=payload,
+                )
+
+            if resp.status_code == 200:
+                data = resp.json()
+                candidates = data.get("candidates", [])
+                if candidates:
+                    finish_reason = candidates[0].get("finishReason", "")
+                    parts = candidates[0].get("content", {}).get("parts", [])
+                    if parts:
+                        text = parts[0].get("text", "")
+                        if finish_reason == "MAX_TOKENS":
+                            # The response was cut off mid-generation — this
+                            # produces broken markdown (e.g. a header that
+                            # opens with ** but never closes), which the
+                            # frontend can't parse into a section. Log it
+                            # clearly so a recurrence is diagnosable, and
+                            # strip any trailing incomplete header fragment
+                            # so at least the completed sections render
+                            # cleanly instead of leaking garbled text.
+                            logger.warning(
+                                f"Gemini response truncated at MAX_TOKENS "
+                                f"(4096) — trimming incomplete trailing content"
+                            )
+                            text = re.sub(r'\*\*[A-Z][A-Z\s]*$', '', text).rstrip()
+                        return text
+                return "Advisory generation returned an empty response."
+
+            err_text = resp.text
+            is_rate_limit = resp.status_code == 429
+            is_daily_quota = "PerDay" in err_text
+
+            if is_daily_quota:
+                logger.error(f"Gemini DAILY quota exhausted")
+                return (
+                    "Advisory generation is temporarily unavailable — "
+                    "today's AI advisory limit has been reached. The prediction "
+                    "above is still valid; please try again in a few hours."
+                )
 
             if is_rate_limit and attempt < max_retries:
-                # Parse suggested retry_delay if present, else default backoff
                 wait_s = 15
-                match = re.search(r"retry_delay\s*\{\s*seconds:\s*(\d+)", err_str)
+                match = re.search(r'"retryDelay":\s*"(\d+)s"', err_text)
                 if match:
-                    wait_s = int(match.group(1)) + 2  # small buffer
+                    wait_s = min(int(match.group(1)) + 2, 60)
                 logger.warning(f"Gemini rate limited (attempt {attempt+1}/{max_retries+1}), waiting {wait_s}s...")
                 await asyncio.sleep(wait_s)
                 continue
 
+            logger.error(f"Gemini HTTP {resp.status_code}: {err_text[:200]}")
+            if attempt < max_retries:
+                await asyncio.sleep(5)
+                continue
+            return f"Advisory generation failed (HTTP {resp.status_code}). The prediction above is still valid."
+
+        except httpx.TimeoutException:
+            logger.error(f"Gemini call timed out (attempt {attempt+1}/{max_retries+1})")
+            if attempt < max_retries:
+                continue
+            return "Advisory generation timed out — the prediction above is still valid; please try again."
+        except Exception as e:
             logger.error(f"Gemini error: {e}")
             return f"Advisory generation failed: {e}"
 
-    return "Advisory generation failed: rate limit exceeded after retries."
+    return "Advisory generation failed after retries."
 
 
 # ---------------------------------------------------------------------------
